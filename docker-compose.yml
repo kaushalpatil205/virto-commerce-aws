@@ -95,8 +95,8 @@ services:
       - "8090:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - VirtoCommerce__Endpoint__Url=http://vc-platform
-      - VirtoCommerce:Endpoint:Url=http://vc-platform
+      - VirtoCommerce__Endpoint__Url=http://vc-platform-backend
+      - VirtoCommerce:Endpoint:Url=http://vc-platform-backend
       - ConnectionStrings__ContentConnectionString=provider=LocalStorage;rootPath=~/cms-content
     volumes:
       - vc-storefront-data:/app/cms-content
