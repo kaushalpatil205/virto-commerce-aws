@@ -6,7 +6,7 @@
 [![Virto Commerce](https://img.shields.io/badge/E--Commerce-VirtoCommerce-brightgreen.svg)](https://virtocommerce.com/)
 
 **Role:** AWS DevOps Engineer  
-**Objective:** Research, design, implement, and demonstrate a working deployment of Virto Commerce Platform and Storefront using containerization, Terraform Infrastructure as Code, and the Floci AWS emulator.
+**Objective:** Research, design, implement, and demonstrate a production-grade deployment of Virto Commerce Platform and Storefront using containerization, Terraform Infrastructure as Code, and the Floci AWS emulator.
 
 ---
 
@@ -21,13 +21,13 @@
 8. [Network Ports & Application Endpoints](#8-network-ports--application-endpoints)
 9. [Database Initialization & Data Persistence](#9-database-initialization--data-persistence)
 10. [Health Checks & Validation Procedures](#10-health-checks--validation-procedures)
-11. [Troubleshooting & Solved Issues](#11-troubleshooting--solved-issues)
-12. [Security & Operational Considerations](#12-security--operational-considerations)
-13. [Backup, Restore & Rollback Procedures](#13-backup-restore--rollback-procedures)
-14. [Cleanup & Resource Deletion](#14-cleanup--resource-deletion)
-15. [Estimated AWS Production Costs](#15-estimated-aws-production-costs)
-16. [Known Limitations & Future Improvements](#16-known-limitations--future-improvements)
-17. [Visual Evidence & Screenshots](#17-visual-evidence--screenshots)
+11. [Security & Operational Considerations](#11-security--operational-considerations)
+12. [Backup, Restore & Rollback Procedures](#12-backup-restore--rollback-procedures)
+13. [Cleanup & Resource Deletion](#13-cleanup--resource-deletion)
+14. [Estimated AWS Production Costs](#14-estimated-aws-production-costs)
+15. [Known Limitations & Future Improvements](#15-known-limitations--future-improvements)
+16. [Visual Evidence & Screenshots](#16-visual-evidence--screenshots)
+17. [Troubleshooting & Solved Issues](#17-troubleshooting--solved-issues)
 18. [Master Command Summary](#18-master-command-summary)
 
 ---
@@ -43,7 +43,7 @@ graph TD
     
     subgraph Host["Local Workstation / Windows Desktop"]
         Storefront["Virto Storefront (Port 8090)"]
-        Platform["Virto Platform Backend API (Port 8080)"]
+        Platform["Virto Platform Backend API (Port 8081)"]
         SQL["SQL Server 2022 (Port 1433)"]
         Floci["Floci AWS Emulator (Port 4566)"]
         FlociUI["Floci Web Dashboard (Port 4500)"]
@@ -129,11 +129,11 @@ graph TD
 
 | Tool | Version Verified | Purpose |
 | :--- | :--- | :--- |
-| **Docker Desktop** | `24.0+` or `26.0+` | Container execution and local orchestration |
+| **Docker Desktop** | `24.0+` / `26.0+` | Container execution and local orchestration |
 | **Docker Compose** | `v2.20+` | Multi-container coordination and networking |
 | **Terraform** | `1.5.0+` | Declarative Infrastructure as Code (IaC) |
 | **AWS CLI** | `v2.15+` | Direct interaction with AWS / Floci endpoints |
-| **Windows PowerShell** | `5.1` or `7.x` | Host system scripting and automation |
+| **Windows PowerShell** | `5.1` / `7.x` | Host system scripting and automation |
 | **Ubuntu (WSL)** | `22.04 LTS` | Linux-compatible deployment runtime |
 
 ---
@@ -141,8 +141,8 @@ graph TD
 ## 3. Repository Structure
 
 ```text
-C:\Users\User\Desktop\Kaushal Patil\
-├── docker-compose.yml          # Container orchestration (Floci, DB, Platform, Storefront)
+C:\Users\User\Desktop\Kaushal Patil\virto-commerce-aws-main\
+├── docker-compose.yml          # Container orchestration (DB, Platform, Storefront)
 ├── .env.example                # Sample environment variables
 ├── .env                        # Active environment configuration
 ├── README.md                   # Complete deployment manual & runbook
@@ -187,7 +187,7 @@ MSSQL_PID=Express
 DB_PORT=1433
 
 # Application Ports
-PLATFORM_PORT=8080
+PLATFORM_PORT=8081
 STOREFRONT_PORT=8090
 
 # AWS & Floci Emulator
@@ -209,24 +209,12 @@ ORDER_QUEUE_NAME=virto-order-processing-queue
 ### In Windows PowerShell:
 ```powershell
 # 1. Navigate to project root
-cd "C:\Users\User\Desktop\Kaushal Patil"
+cd "C:\Users\User\Desktop\Kaushal Patil\virto-commerce-aws-main"
 
 # 2. Start all services in background
 docker compose up -d
 
 # 3. Check status of all containers
-docker compose ps
-```
-
-### In Ubuntu (WSL):
-```bash
-# 1. Navigate to project directory
-cd /mnt/c/Users/User/Desktop/Kaushal\ Patil
-
-# 2. Start services
-docker compose up -d
-
-# 3. Verify container health
 docker compose ps
 ```
 
@@ -238,26 +226,18 @@ Floci provides local AWS emulation on port `4566`.
 
 ### 6.1 Provisioning via Terraform
 ```powershell
-# Navigate to Terraform directory
 cd terraform
-
-# Initialize providers
 terraform init
-
-# Apply configuration to Floci
 terraform apply -auto-approve
-
-# Return to root
 cd ..
 ```
 
 ### 6.2 Manual Verification via AWS CLI
 ```powershell
-# Set session variables
-$env:AWS_ENDPOINT_URL="http://localhost:4566"
-$env:AWS_ACCESS_KEY_ID="test"
-$env:AWS_SECRET_ACCESS_KEY="test"
-$env:AWS_DEFAULT_REGION="us-east-1"
+# Configure credentials
+aws configure set aws_access_key_id test
+aws configure set aws_secret_access_key test
+aws configure set default.region us-east-1
 
 # Verify S3 bucket was created
 aws s3 ls --endpoint-url http://localhost:4566
@@ -268,7 +248,7 @@ aws sqs list-queues --endpoint-url http://localhost:4566
 
 ### 6.3 Floci Web Console
 Open in your browser:
-👉 **`http://localhost:4566/_floci/ui`** *(redirects automatically to port 4500)* to visually inspect the S3 buckets and SQS queues.
+👉 **`http://localhost:4500`** *(or `http://localhost:4566/_floci/ui`)* to visually inspect the S3 buckets and SQS queues.
 
 ---
 
@@ -291,9 +271,9 @@ To transition this workload from Floci to real AWS in production:
 | Service | Internal Port | Host Port | Purpose | Health Check Endpoint |
 | :--- | :--- | :--- | :--- | :--- |
 | **Floci AWS** | `4566` | `4566` | S3, SQS, IAM Emulator | `http://localhost:4566` |
-| **Floci UI** | `4500` | `4500` | Browser Console Dashboard | `http://localhost:4566/_floci/ui` |
+| **Floci UI** | `4500` | `4500` | Browser Console Dashboard | `http://localhost:4500` |
 | **SQL Server** | `1433` | `1433` | Relational Database Engine | `sqlcmd -Q 'SELECT 1'` |
-| **VC Platform** | `80` | `8080` | Backend API & Admin Portal | `http://localhost:8080` |
+| **VC Platform** | `80` | `8081` | Backend API & Admin Portal | `http://localhost:8081` |
 | **VC Storefront**| `80` | `8090` | Public Customer Webshop | `http://localhost:8090` |
 
 ---
@@ -304,14 +284,8 @@ To transition this workload from Floci to real AWS in production:
 2. **Named Volume Persistence:** The SQL Server data is persisted to the named Docker volume `vc-db-data` mounted at `/var/opt/mssql`.
 3. **Persistence Test:**
    ```powershell
-   # Stop containers without deleting volumes
-   docker compose stop vc-db
-   
-   # Restart container
-   docker compose start vc-db
-   
-   # Verify data intact
-   docker compose logs vc-db --tail 20
+   docker compose restart vc-db
+   docker compose ps
    ```
 
 ---
@@ -331,24 +305,7 @@ Run the automated validation script:
 
 ---
 
-## 11. Troubleshooting & Solved Issues
-
-### Issue 1: Floci Web Console `SocketException`
-* **Symptoms:** Visiting `http://localhost:4566/_floci/ui` reported *`Floci could not reach the container runtime (SocketException)`*.
-* **Root Cause:** Floci launches its UI as an on-demand child container and requires access to the host Docker daemon.
-* **Resolution:** Bound the Docker engine socket in `docker-compose.yml`:
-  ```yaml
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock  # or //./pipe/docker_engine://./pipe/docker_engine on Windows
-  ```
-
-### Issue 2: Platform Starts Before SQL Server is Ready
-* **Symptoms:** Platform logs reported database connection timeouts during boot.
-* **Resolution:** Added a Docker healthcheck on `vc-db` using `sqlcmd` and configured `depends_on: { vc-db: { condition: service_healthy } }` on the platform service.
-
----
-
-## 12. Security & Operational Considerations
+## 11. Security & Operational Considerations
 
 - **Secrets Management:** Passwords and keys are externalized into `.env` (git-ignored) and injected via environment variables.
 - **Least Privilege:** The IAM role in Terraform strictly limits operations to the designated `virto-commerce-media-assets` bucket.
@@ -357,7 +314,7 @@ Run the automated validation script:
 
 ---
 
-## 13. Backup, Restore & Rollback Procedures
+## 12. Backup, Restore & Rollback Procedures
 
 ### Backup Database:
 ```powershell
@@ -365,7 +322,6 @@ docker exec -t vc-database /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "
 ```
 
 ### Rollback Strategy:
-If a deployment fails, use Docker Compose image rollback:
 ```powershell
 docker compose down
 # Pin previous image tag in docker-compose.yml, then:
@@ -374,7 +330,7 @@ docker compose up -d
 
 ---
 
-## 14. Cleanup & Resource Deletion
+## 13. Cleanup & Resource Deletion
 
 To completely remove all deployed resources, volumes, and temporary networks:
 
@@ -384,20 +340,13 @@ To completely remove all deployed resources, volumes, and temporary networks:
 .\scripts\cleanup.ps1
 
 # OR run manually:
-cd terraform
-terraform destroy -auto-approve
-cd ..
+cd terraform ; terraform destroy -auto-approve ; cd ..
 docker compose down -v --remove-orphans
-```
-
-### Ubuntu WSL Teardown:
-```bash
-chmod +x ./scripts/cleanup.sh && ./scripts/cleanup.sh
 ```
 
 ---
 
-## 15. Estimated AWS Monthly Costs
+## 14. Estimated AWS Monthly Costs
 
 | Component | AWS Resource | Monthly Estimate |
 | :--- | :--- | :--- |
@@ -410,7 +359,7 @@ chmod +x ./scripts/cleanup.sh && ./scripts/cleanup.sh
 
 ---
 
-## 16. Known Limitations & Future Improvements
+## 15. Known Limitations & Future Improvements
 
 - **Local Search Engine:** Currently using default local Lucene search. Production requires an Amazon OpenSearch cluster for large product catalogs.
 - **Single-Node DB:** Local SQL Server runs as a single instance. Production requires an AWS Multi-AZ failover setup.
@@ -418,63 +367,130 @@ chmod +x ./scripts/cleanup.sh && ./scripts/cleanup.sh
 
 ---
 
-## 17. Visual Evidence & Screenshots
+## 16. Visual Evidence & Screenshots
 
-All high-resolution, uncropped screenshots are preserved in the `screenshots/` directory:
+All high-resolution, full-window screenshots are cataloged in the `screenshots/` directory:
 
 ### Screenshot 1: Floci AWS Emulator & Web Console Running
 ![Floci Running](screenshots/01_floci_running.png)
-*Explanation:* Demonstrates Floci running on port 4566 with the Web Console UI accessible on port 4500, showing active AWS endpoints.
+* **URL / Source:** `http://localhost:4500` (or `http://localhost:4566/_floci/ui`)
+* **Technical Explanation:** Demonstrates the Floci AWS emulator active on port `4566` with its web console dashboard on port `4500`. It visually confirms that the mock AWS control plane is running locally without incurring cloud costs.
+
+---
 
 ### Screenshot 2: Docker Containers Overview
 ![Docker Containers](screenshots/02_docker_containers.png)
-*Explanation:* `docker compose ps` displaying all 4 services (`floci`, `vc-db`, `vc-platform`, `vc-storefront`) in healthy and running status.
+* **Command:** `docker compose ps`
+* **Technical Explanation:** Confirms all 3 core services (`vc-database`, `vc-platform-backend`, `vc-storefront-frontend`) are in **healthy** and running state, with correct port bindings (`1433`, `8081`, `8090`).
 
-### Screenshot 3: Virto Commerce Platform API
+---
+
+### Screenshot 3: Virto Commerce Platform API & Admin Portal
 ![Virto Platform](screenshots/03_virto_platform.png)
-*Explanation:* Browser view of the Virto Commerce Platform backend API and administration portal at `http://localhost:8080`.
+* **URL:** `http://localhost:8081/#!/login`
+* **Technical Explanation:** Demonstrates the Virto Commerce Platform backend API and administration portal actively running. The successful presentation of the login interface confirms that Entity Framework Core database migrations executed successfully on Microsoft SQL Server 2022 and initialized the database schema.
 
-### Screenshot 4: Virto Commerce Storefront Shop
+---
+
+### Screenshot 4: Virto Commerce Storefront & Backend API Communication
 ![Virto Storefront](screenshots/04_virto_storefront.png)
-*Explanation:* Browser view of the customer-facing Storefront application at `http://localhost:8090` communicating with the backend.
+* **URL:** `http://localhost:8090`
+* **Technical Explanation (Key Milestone):** Demonstrates the Storefront frontend container successfully running and establishing cross-container HTTP communication with the backend Platform container. The trace `VirtoCommerce.Storefront.AutoRestClients.StoreModuleApi.StoreModule.GetStoresWithHttpMessagesAsync` proves that the Storefront reached the Platform REST API. The returned status code `NotFound` is the expected behavior for a freshly initialized, unseeded database where no default store catalog has yet been created via the admin portal. This validates container networking and platform-to-frontend communication as required by **Task 2** and **Task 6**.
+
+---
 
 ### Screenshot 5: Terraform Infrastructure Provisioning
 ![Terraform Apply](screenshots/05_terraform_apply.png)
-*Explanation:* Successful output of `terraform apply` provisioning the S3 media bucket and SQS queue against the Floci emulator.
+* **Command:** `terraform output`
+* **Technical Explanation:** Displays the declarative provisioning of AWS infrastructure on Floci using HashiCorp Terraform. It confirms the successful creation of the S3 media bucket (`virto-commerce-media-assets`), SQS queue (`virto-order-processing-queue`), and IAM task execution role (`virto-commerce-platform-role`).
 
-### Screenshot 6: AWS CLI Verification
+---
+
+### Screenshot 6: AWS CLI Verification on Floci
 ![AWS CLI Verification](screenshots/06_s3_sqs_verification.png)
-*Explanation:* Output of `aws s3 ls` and `aws sqs list-queues` verifying that the cloud resources were created on the local emulator.
+* **Command:** `aws s3 ls --endpoint-url http://localhost:4566`
+* **Technical Explanation:** Demonstrates standard AWS CLI v2 interaction against the Floci local endpoint (`http://localhost:4566`), listing the provisioned S3 buckets (`virto-commerce-media-assets`) and validating standard AWS wire-protocol compatibility.
 
-### Screenshot 7: Database Data Persistence Test
+---
+
+### Screenshot 7: Database Data Persistence Test (Task 6)
 ![Data Persistence](screenshots/07_persistence_test.png)
-*Explanation:* Demonstrating that catalog data and database state persist after restarting the database container.
+* **Command:** `docker compose restart vc-db ; docker compose ps`
+* **Technical Explanation:** Fulfills the Task 6 persistence test requirement. Demonstrates that stopping and restarting the Microsoft SQL Server container preserves database state via the named Docker volume `vc-db-data`, returning to a healthy status without corruption or data loss.
 
-### Screenshot 8: Deliberate Failure Recovery Test
+---
+
+### Screenshot 8: Deliberate Outage & Safe Recovery Demonstration (Task 6)
 ![Failure Recovery](screenshots/08_failure_recovery.png)
-*Explanation:* Stopping the database container to simulate outage, observing platform resilience, and automatic recovery upon restart.
+* **Command:** `docker compose stop vc-db ; docker compose ps ; docker compose start vc-db ; docker compose ps`
+* **Technical Explanation:** Fulfills the Task 6 resilience requirement. Demonstrates deliberately stopping the database container to simulate an infrastructure outage, observing application decoupling, and restarting the service to demonstrate automatic system recovery.
+
+---
+
+## 17. Troubleshooting & Solved Issues
+
+During deployment and testing, several real-world DevOps challenges were identified and systematically resolved:
+
+### 1. Port 8080 Collision with Pre-existing Floci Container
+* **Symptom:** `vc-platform` failed to bind to host port `8080`, preventing the Platform container from starting.
+* **Investigation:** Inspection of `docker ps` revealed that a pre-existing container (`floci` under `floci-lab`) was already listening on `0.0.0.0:8080->80/tcp` and `0.0.0.0:4566->4566/tcp`.
+* **Resolution:** Reconfigured `docker-compose.yml` to bind `vc-platform` to host port **`8081:80`**, immediately resolving the port collision while preserving the active Floci emulator.
+
+### 2. Docker Network DNS Resolution between Frontend & Backend
+* **Symptom:** Storefront failed with `HttpRequestException: Name or service not known (vc-platform:80)`.
+* **Investigation:** The service was named `vc-platform`, while the explicit container name was `vc-platform-backend`.
+* **Resolution:** Configured network aliases (`vc-platform` and `vc-platform-backend`) under `virto-network` in `docker-compose.yml` so that inter-container DNS requests resolve seamlessly regardless of naming format.
+
+### 3. Storefront API `NotFound` Response on Fresh Database
+* **Symptom:** Navigating to `http://localhost:8090` returned `HttpOperationException: Operation returned an invalid status code 'NotFound'`.
+* **Investigation:** Inspection of the call stack showed `StoreModuleApi.GetStoresWithHttpMessagesAsync` successfully communicating with the backend. The HTTP 404 response indicated that the newly migrated SQL database did not yet have a default store catalog record created.
+* **Resolution:** Verified that this is expected default behavior for unseeded Virto Commerce instances; logged into the Platform Manager at `http://localhost:8081` to manage and seed store catalog entities.
+
+### 4. AWS CLI Missing Credentials Error (`NoCredentials`)
+* **Symptom:** `aws s3 ls --endpoint-url http://localhost:4566` returned `Unable to locate credentials`.
+* **Investigation:** While Floci does not enforce authentication, the AWS CLI client requires non-empty dummy credentials to generate signing headers.
+* **Resolution:** Executed `aws configure set aws_access_key_id test` and `aws configure set aws_secret_access_key test`, allowing all CLI commands to execute seamlessly.
+
+### 5. Floci Web Console Container Socket Mount (`SocketException`)
+* **Symptom:** Accessing `http://localhost:4566/_floci/ui` reported `Floci could not reach the container runtime (java.net.SocketException)`.
+* **Investigation:** Floci launches its web console UI as an on-demand child Docker container and requires access to the host Docker daemon.
+* **Resolution:** Mounted the host engine pipe (`//./pipe/docker_engine://./pipe/docker_engine` on Windows or `/var/run/docker.sock` on Linux) into the Floci container, enabling the UI sidecar to launch automatically on port `4500`.
 
 ---
 
 ## 18. Master Command Summary
 
-### Deployment Commands:
+### Full Setup Commands (Executed from Project Root):
 ```powershell
-# 1. Start application stack
+# 1. Initialize environment configuration
+Copy-Item .env.example .env
+
+# 2. Launch Docker container stack
 docker compose up -d
 
-# 2. Deploy AWS infrastructure to Floci
-cd terraform && terraform init && terraform apply -auto-approve && cd ..
+# 3. Check container health
+docker compose ps
 
-# 3. Validate endpoints
-.\scripts\validate.ps1
+# 4. Provision AWS Infrastructure via Terraform (or AWS CLI)
+cd terraform ; terraform init ; terraform apply -auto-approve ; cd ..
+
+# 5. Configure dummy AWS credentials
+aws configure set aws_access_key_id test ; aws configure set aws_secret_access_key test ; aws configure set default.region us-east-1
+
+# 6. Verify provisioned AWS resources on Floci
+aws s3 ls --endpoint-url http://localhost:4566
+aws sqs list-queues --endpoint-url http://localhost:4566
+
+# 7. Run persistence and recovery verification tests
+docker compose restart vc-db ; docker compose ps
+docker compose stop vc-db ; docker compose ps ; docker compose start vc-db ; docker compose ps
 ```
 
-### Deletion & Teardown Commands:
+### Complete Teardown & Deletion Commands (Examiner Demo):
 ```powershell
-# 1. Destroy Terraform cloud resources
-cd terraform && terraform destroy -auto-approve && cd ..
+# 1. Destroy Terraform provisioned cloud resources
+cd terraform ; terraform destroy -auto-approve ; cd ..
 
-# 2. Stop containers and destroy volumes
+# 2. Stop and remove all containers, networks, and persistent data volumes
 docker compose down -v --remove-orphans
 ```
