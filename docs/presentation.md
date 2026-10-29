@@ -1,9 +1,7 @@
 # Virto Commerce Platform & Storefront Deployment
 ## Final Technical Presentation & Project Walkthrough (Task 8)
 
-**Candidate:** Kaushal Patil  
-**Role:** AWS DevOps Engineer  
-**Live Repository:** [https://github.com/kaushalpatil205/virto-commerce-aws](https://github.com/kaushalpatil205/virto-commerce-aws)
+
 
 ---
 
