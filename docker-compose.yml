@@ -63,7 +63,7 @@ services:
       floci:
         condition: service_healthy
     ports:
-      - "8080:80"
+      - "8081:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__VirtoCommerce=Data Source=vc-db;Initial Catalog=VirtoCommerce3;Persist Security Info=True;User ID=sa;Password=VirtoCommerce@2026!;TrustServerCertificate=True;MultipleActiveResultSets=True;Connect Timeout=60;
@@ -95,8 +95,8 @@ services:
       - "8090:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - VirtoCommerce__Endpoint__Url=http://vc-platform-backend
-      - VirtoCommerce:Endpoint:Url=http://vc-platform-backend
+      - VirtoCommerce__Endpoint__Url=http://vc-platform
+      - VirtoCommerce:Endpoint:Url=http://vc-platform
       - ConnectionStrings__ContentConnectionString=provider=LocalStorage;rootPath=~/cms-content
     volumes:
       - vc-storefront-data:/app/cms-content
