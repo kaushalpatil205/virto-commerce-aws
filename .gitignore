@@ -1,0 +1,13 @@
+# Environment files
+.env
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Docker & OS
+.DS_Store
+Thumbs.db
+*.log

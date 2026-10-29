@@ -1,0 +1,110 @@
+version: '3.8'
+
+networks:
+  virto-network:
+    driver: bridge
+
+volumes:
+  vc-db-data:
+    driver: local
+  vc-platform-data:
+    driver: local
+  vc-storefront-data:
+    driver: local
+
+services:
+  # 1. AWS Local Cloud Emulator
+  floci:
+    image: floci/floci:latest
+    container_name: floci-emulator
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - virto-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Database Engine (SQL Server 2022)
+  vc-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: vc-database
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=VirtoCommerce@2026!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - vc-db-data:/var/opt/mssql
+    networks:
+      - virto-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'VirtoCommerce@2026!' -C -Q 'SELECT 1' || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'VirtoCommerce@2026!' -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # 3. Virto Commerce Backend Platform API
+  vc-platform:
+    image: virtocommerce/platform:latest
+    container_name: vc-platform-backend
+    restart: unless-stopped
+    depends_on:
+      vc-db:
+        condition: service_healthy
+      floci:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__VirtoCommerce=Data Source=vc-db;Initial Catalog=VirtoCommerce3;Persist Security Info=True;User ID=sa;Password=VirtoCommerce@2026!;TrustServerCertificate=True;MultipleActiveResultSets=True;Connect Timeout=60;
+      - ConnectionStrings__AssetsConnectionString=provider=LocalStorage;rootPath=~/App_Data/Assets;publicUrl=http://localhost:8080/assets
+      - VirtoCommerce__AWS__ServiceUrl=http://floci:4566
+      - VirtoCommerce__AWS__Region=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - vc-platform-data:/app/App_Data
+    networks:
+      - virto-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/status || curl -f http://localhost:80/ || exit 0"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # 4. Virto Commerce Frontend Storefront
+  vc-storefront:
+    image: virtocommerce/storefront:latest
+    container_name: vc-storefront-frontend
+    restart: unless-stopped
+    depends_on:
+      - vc-platform
+    ports:
+      - "8090:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - VirtoCommerce__Endpoint__Url=http://vc-platform
+      - VirtoCommerce:Endpoint:Url=http://vc-platform
+      - ConnectionStrings__ContentConnectionString=provider=LocalStorage;rootPath=~/cms-content
+    volumes:
+      - vc-storefront-data:/app/cms-content
+    networks:
+      - virto-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 0"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s

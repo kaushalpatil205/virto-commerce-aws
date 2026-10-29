@@ -1,0 +1,52 @@
+name: Virto Commerce CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: |
+          docker compose config
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Format & Validate
+        run: |
+          cd terraform
+          terraform fmt -check
+          terraform init -backend=false
+          terraform validate
+
+      - name: Start Floci AWS Emulator
+        run: |
+          docker run -d --rm -p 4566:4566 --name floci-ci floci/floci:latest
+          sleep 5
+          curl -f http://localhost:4566 || exit 1
+
+      - name: Apply Terraform to Floci in CI
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Test AWS CLI against Floci
+        run: |
+          export AWS_ENDPOINT_URL=http://localhost:4566
+          export AWS_ACCESS_KEY_ID=test
+          export AWS_SECRET_ACCESS_KEY=test
+          export AWS_DEFAULT_REGION=us-east-1
+          aws s3 ls
+          aws sqs list-queues
