@@ -5,7 +5,7 @@
 [![Terraform](https://img.shields.io/badge/IaC-Terraform-purple.svg)](https://www.terraform.io/)
 [![Virto Commerce](https://img.shields.io/badge/E--Commerce-VirtoCommerce-brightgreen.svg)](https://virtocommerce.com/)
 
-**Role:** AWS DevOps Engineer  
+
 **Objective:** Research, design, implement, and demonstrate a production-grade deployment of Virto Commerce Platform and Storefront using containerization, Terraform Infrastructure as Code, and the Floci AWS emulator.
 
 ---
