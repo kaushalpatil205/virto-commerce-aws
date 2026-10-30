@@ -276,6 +276,12 @@ To transition this workload from Floci to real AWS in production:
 | **VC Platform** | `80` | `8081` | Backend API & Admin Portal | `http://localhost:8081` |
 | **VC Storefront**| `80` | `8090` | Public Customer Webshop | `http://localhost:8090` |
 
+### Default Administrative Credentials
+* **Platform Manager URL:** `http://localhost:8081` (or `http://localhost:8081/#!/login`)
+* **Username:** `admin`
+* **Default Password:** `store` *(Platform prompts to update password on first login)*
+* **Database SA Password:** `VirtoCommerce@2026!` (configured via `.env`)
+
 ---
 
 ## 9. Database Initialization & Data Persistence
@@ -388,6 +394,9 @@ All high-resolution, full-window screenshots are cataloged in the `screenshots/`
 ### Screenshot 3: Virto Commerce Platform API & Admin Portal
 ![Virto Platform](screenshots/03_virto_platform.png)
 * **URL:** `http://localhost:8081/#!/login`
+* **Default Admin Credentials:**
+  * **Username:** `admin`
+  * **Password:** `store`
 * **Technical Explanation:** Demonstrates the Virto Commerce Platform backend API and administration portal actively running. The successful presentation of the login interface confirms that Entity Framework Core database migrations executed successfully on Microsoft SQL Server 2022 and initialized the database schema.
 
 ---
@@ -395,7 +404,9 @@ All high-resolution, full-window screenshots are cataloged in the `screenshots/`
 ### Screenshot 4: Virto Commerce Storefront & Backend API Communication
 ![Virto Storefront](screenshots/04_virto_storefront.png)
 * **URL:** `http://localhost:8090`
-* **Technical Explanation (Key Milestone):** Demonstrates the Storefront frontend container successfully running and establishing cross-container HTTP communication with the backend Platform container. The trace `VirtoCommerce.Storefront.AutoRestClients.StoreModuleApi.StoreModule.GetStoresWithHttpMessagesAsync` proves that the Storefront reached the Platform REST API. The returned status code `NotFound` is the expected behavior for a freshly initialized, unseeded database where no default store catalog has yet been created via the admin portal. This validates container networking and platform-to-frontend communication as required by **Task 2** and **Task 6**.
+* **Technical Explanation (Key DevOps Milestone):** Demonstrates the Storefront frontend container successfully running and establishing cross-container HTTP communication with the backend Platform container. The trace `VirtoCommerce.Storefront.AutoRestClients.StoreModuleApi.StoreModule.GetStoresWithHttpMessagesAsync` proves that the Storefront reached the Platform REST API. 
+* **Why `NotFound` is Expected & Valid:** In an unseeded, newly initialized Virto Commerce database, no default store catalog has yet been registered via the admin portal (`admin` / `store`). The backend API correctly responds with HTTP `NotFound (404)`. If container networking or backend resolution had failed, the Storefront would throw a fatal `HttpRequestException (Connection Refused)` or `502 Bad Gateway`. Thus, receiving a structured `NotFound` response from the backend REST service is definitive architectural proof of cross-container network connectivity as required by **Task 2** and **Task 6**.
+* **Optional Catalog Seeding:** Logging into `http://localhost:8081` with `admin` / `store` and creating a store named `default` immediately transitions the storefront to the full catalog shopping interface.
 
 ---
 

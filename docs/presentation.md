@@ -114,11 +114,12 @@
 
 * **1. Virto Commerce Platform Manager (`http://localhost:8081/#!/login`):**
   * Accessible via web browser.
+  * Default Admin Credentials: Username: `admin` | Password: `store`.
   * Confirms backend API is up and Entity Framework database migrations successfully seeded 40+ database tables.
 * **2. Virto Commerce Storefront (`http://localhost:8090`):**
   * Accessible via web browser.
   * Validates cross-container HTTP communication: Storefront invokes `StoreModuleApi.GetStoresWithHttpMessagesAsync` against Platform on port 80.
-  * Returns expected `NotFound` status code due to freshly initialized, unseeded catalog database.
+  * Returns expected `NotFound` status code due to freshly initialized, unseeded catalog database (proving cross-container TCP & API reachability).
 * **3. Floci Web Console (`http://localhost:4500`):**
   * Displays visual confirmation of provisioned S3 buckets and SQS queues.
 * **4. AWS CLI Verification:**
