@@ -202,26 +202,44 @@
 ## 12. Deployment Automation, CI/CD & Teardown
 
 * **Automated Deployment Sequence:**
-  ```powershell
-  # 1. Start application containers
-  docker compose up -d
+  * **Linux / Ubuntu / macOS:**
+    ```bash
+    # 1. Setup modern frontend & modules (if not already provisioned)
+    chmod +x ./scripts/setup-modern-frontend.sh && ./scripts/setup-modern-frontend.sh
 
-  # 2. Provision AWS infrastructure on Floci via Terraform
-  cd terraform ; terraform init ; terraform apply -auto-approve ; cd ..
+    # 2. Start application containers
+    docker compose up -d
 
-  # 3. Validate endpoints & health
-  .\scripts\validate.ps1
-  ```
+    # 3. Provision AWS infrastructure on Floci via Terraform
+    cd terraform && terraform init && terraform apply -auto-approve && cd ..
+
+    # 4. Validate endpoints & health
+    chmod +x ./scripts/validate.sh && ./scripts/validate.sh
+    ```
+  * **Windows PowerShell:**
+    ```powershell
+    # 1. Start application containers
+    docker compose up -d
+
+    # 2. Provision AWS infrastructure on Floci via Terraform
+    cd terraform ; terraform init ; terraform apply -auto-approve ; cd ..
+
+    # 3. Validate endpoints & health
+    .\scripts\validate.ps1
+    ```
 * **CI/CD Pipeline (`.github/workflows/deploy.yml`):**
   * Automated validation on every push: validates Compose configuration, checks Terraform formatting, and provisions against Floci in GitHub Actions runners.
 * **Complete Teardown & Deletion Sequence (Evaluator Demo):**
-  ```powershell
-  # 1. Destroy Terraform provisioned cloud resources
-  cd terraform ; terraform destroy -auto-approve ; cd ..
-
-  # 2. Stop and remove all containers, networks, and persistent data volumes
-  docker compose down -v --remove-orphans
-  ```
+  * **Linux / Ubuntu / macOS:**
+    ```bash
+    cd terraform && terraform destroy -auto-approve && cd ..
+    docker compose down -v --remove-orphans
+    ```
+  * **Windows PowerShell:**
+    ```powershell
+    cd terraform ; terraform destroy -auto-approve ; cd ..
+    docker compose down -v --remove-orphans
+    ```
 
 ---
 

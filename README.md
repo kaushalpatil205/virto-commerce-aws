@@ -360,6 +360,16 @@ docker compose up -d
 
 To completely remove all deployed resources, volumes, and temporary networks:
 
+### Linux / Ubuntu / macOS (Bash):
+```bash
+# Run the automated cleanup script
+chmod +x ./scripts/cleanup.sh && ./scripts/cleanup.sh
+
+# OR run manually:
+cd terraform && terraform destroy -auto-approve && cd ..
+docker compose down -v --remove-orphans
+```
+
 ### Windows PowerShell Teardown:
 ```powershell
 # Run the automated cleanup script
@@ -509,32 +519,79 @@ During deployment and testing, several real-world DevOps challenges were identif
 ## 18. Master Command Summary
 
 ### Full Setup Commands (Executed from Project Root):
+
+#### Linux / Ubuntu / macOS (Bash):
+```bash
+# 1. Initialize environment configuration
+cp .env.example .env
+
+# 2. Setup modern B2B frontend and Experience API modules
+chmod +x ./scripts/setup-modern-frontend.sh && ./scripts/setup-modern-frontend.sh
+
+# 3. Launch Docker container stack
+docker compose up -d
+
+# 4. Check container health
+docker compose ps
+
+# 5. Provision AWS Infrastructure via Terraform (or AWS CLI)
+cd terraform && terraform init && terraform apply -auto-approve && cd ..
+
+# 6. Configure dummy AWS credentials
+aws configure set aws_access_key_id test
+aws configure set aws_secret_access_key test
+aws configure set default.region us-east-1
+
+# 7. Verify provisioned AWS resources on Floci
+aws s3 ls --endpoint-url http://localhost:4566
+aws sqs list-queues --endpoint-url http://localhost:4566
+
+# 8. Run persistence and recovery verification tests
+docker compose restart vc-db && docker compose ps
+docker compose stop vc-db && docker compose ps && docker compose start vc-db && docker compose ps
+```
+
+#### Windows (PowerShell):
 ```powershell
 # 1. Initialize environment configuration
 Copy-Item .env.example .env
 
-# 2. Launch Docker container stack
+# 2. Setup modern B2B frontend and Experience API modules (in Git Bash or WSL)
+bash ./scripts/setup-modern-frontend.sh
+
+# 3. Launch Docker container stack
 docker compose up -d
 
-# 3. Check container health
+# 4. Check container health
 docker compose ps
 
-# 4. Provision AWS Infrastructure via Terraform (or AWS CLI)
+# 5. Provision AWS Infrastructure via Terraform (or AWS CLI)
 cd terraform ; terraform init ; terraform apply -auto-approve ; cd ..
 
-# 5. Configure dummy AWS credentials
+# 6. Configure dummy AWS credentials
 aws configure set aws_access_key_id test ; aws configure set aws_secret_access_key test ; aws configure set default.region us-east-1
 
-# 6. Verify provisioned AWS resources on Floci
+# 7. Verify provisioned AWS resources on Floci
 aws s3 ls --endpoint-url http://localhost:4566
 aws sqs list-queues --endpoint-url http://localhost:4566
 
-# 7. Run persistence and recovery verification tests
+# 8. Run persistence and recovery verification tests
 docker compose restart vc-db ; docker compose ps
 docker compose stop vc-db ; docker compose ps ; docker compose start vc-db ; docker compose ps
 ```
 
 ### Complete Teardown & Deletion Commands (Examiner Demo):
+
+#### Linux / Ubuntu / macOS (Bash):
+```bash
+# 1. Destroy Terraform provisioned cloud resources
+cd terraform && terraform destroy -auto-approve && cd ..
+
+# 2. Stop and remove all containers, networks, and persistent data volumes
+docker compose down -v --remove-orphans
+```
+
+#### Windows (PowerShell):
 ```powershell
 # 1. Destroy Terraform provisioned cloud resources
 cd terraform ; terraform destroy -auto-approve ; cd ..
