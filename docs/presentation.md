@@ -120,6 +120,9 @@
   * Accessible via web browser through unified NGINX API Gateway.
   * Official modern Vue 3 Single Page Application (`vc-frontend`) connecting to backend GraphQL API.
   * Live interactive catalog with categories (Bolts, Soft Drinks, Snacks), dynamic pricing, and shopping cart.
+* **2.1. Backend Experience Modules & GraphQL APIs (`http://localhost:8081/#!/modules`):**
+  * Installed modules verified in Platform: `VirtoCommerce.XFrontend` (v3.1009.0), `VirtoCommerce.WhiteLabeling` (v3.1006.0), `VirtoCommerce.ImageTools` (v3.1009.0), and `VirtoCommerce.ProfileExperienceApiModule` (v3.1023.0).
+  * Exposes required GraphQL queries and schema definitions to power the decoupled storefront.
 * **3. Floci Web Console (`http://localhost:4500`):**
   * Displays visual confirmation of provisioned S3 buckets and SQS queues.
 * **4. AWS CLI Verification:**

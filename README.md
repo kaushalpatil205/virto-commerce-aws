@@ -437,12 +437,25 @@ The visual evidence for the deployment is organized below with explicit capture 
 
 ---
 
-### Screenshot 4: Virto Commerce Modern B2B Storefront (Headless Vue 3 SPA)
-> 📷 **[Screenshot Placeholder 4 - Modern B2B Storefront]**
+### Screenshot 4: Virto Commerce Modern B2B Storefront (Frontend)
+> 📷 **[Screenshot Placeholder 4 - Modern B2B Storefront (Frontend)]**
 > * **Target File:** `screenshots/04_virto_storefront.png`
 > * **URL:** `http://localhost:8090`
 > * **What to Capture:** Full browser window of the live customer B2B storefront showing the top category navigation bar (*Bolts*, *Soft Drinks*, *Snacks*), search bar, product catalog grid with prices, stock status, and the interactive Cart button.
 * **Technical Explanation (Key DevOps Milestone):** Demonstrates the modern decoupled Headless Storefront successfully running via the NGINX API Gateway on port `8090`. The client-side Vue 3 Single Page Application establishes GraphQL communication with the Platform backend, rendering dynamic catalog categories, pricing, and product media without server-rendered template errors.
+
+---
+
+### Screenshot 4.1: Virto Commerce Platform Modules & Backend GraphQL APIs (Backend)
+> 📷 **[Screenshot Placeholder 4.1 - Backend Modules & GraphQL Experience APIs]**
+> * **Target File:** `screenshots/04.1_backend_modules.png`
+> * **URL / Source:** `http://localhost:8081/#!/modules` *(or GraphQL verification endpoint)*
+> * **What to Capture:** Full browser window in Platform Admin (`http://localhost:8081`) under **Modules** (or terminal showing active module verification) confirming the installed Experience API modules:
+>   * `VirtoCommerce.XFrontend` (v3.1009.0)
+>   * `VirtoCommerce.WhiteLabeling` (v3.1006.0)
+>   * `VirtoCommerce.ImageTools` (v3.1009.0)
+>   * `VirtoCommerce.ProfileExperienceApiModule` (v3.1023.0)
+* **Technical Explanation:** Validates that the backend Platform container has loaded and initialized the required Experience API modules. These modules expose the GraphQL schema definitions, white-labeling configurations, dynamic image endpoints, and customer authentication pipelines consumed by the headless Vue 3 Storefront.
 
 ---
 
