@@ -42,17 +42,21 @@ graph TD
     Client["Browser / Engineer"]
     
     subgraph Host["Local Workstation / Windows Desktop"]
-        Storefront["Virto Storefront (Port 8090)"]
+        Gateway["API Gateway & NGINX Router (Port 8090)"]
+        Storefront["Virto Storefront (Official Vue 3 B2B SPA)"]
         Platform["Virto Platform Backend API (Port 8081)"]
         SQL["SQL Server 2022 (Port 1433)"]
         Floci["Floci AWS Emulator (Port 4566)"]
         FlociUI["Floci Web Dashboard (Port 4500)"]
         
-        Client -->|Browse Store| Storefront
-        Client -->|Manage Catalog / API| Platform
-        Client -->|Inspect Cloud Resources| FlociUI
+        Client -->|Browse Store: Port 8090| Gateway
+        Client -->|Platform Admin Portal: Port 8081| Platform
+        Client -->|Inspect Cloud Resources: Port 4500| FlociUI
         
-        Storefront -->|REST API / GraphQL| Platform
+        Gateway -->|/ Web Pages, JS & CSS Assets| Storefront
+        Gateway -->|/graphql, /api/, /connect/| Platform
+        Gateway -->|/assets/catalog/ Product Photos| Platform
+        
         Platform -->|Relational Data| SQL
         Platform -->|Catalog Media / S3| Floci
         Platform -->|Order Events / SQS| Floci
@@ -206,15 +210,30 @@ ORDER_QUEUE_NAME=virto-order-processing-queue
 
 ## 5. Local Setup & Deployment Steps
 
+### Quick Start (Automated Modern Architecture):
+```bash
+# 1. Download official Virto Commerce modern Vue 3 B2B theme and Experience API modules
+./scripts/setup-modern-frontend.sh
+
+# 2. Start all services in background via Docker Compose
+docker compose up -d
+
+# 3. Check status of all containers
+docker compose ps
+```
+
 ### In Windows PowerShell:
 ```powershell
 # 1. Navigate to project root
 cd "C:\Users\User\Desktop\Kaushal Patil\virto-commerce-aws-main"
 
-# 2. Start all services in background
+# 2. Run modern frontend setup (or execute bash equivalent)
+bash ./scripts/setup-modern-frontend.sh
+
+# 3. Start all services in background
 docker compose up -d
 
-# 3. Check status of all containers
+# 4. Check status of all containers
 docker compose ps
 ```
 
@@ -274,7 +293,8 @@ To transition this workload from Floci to real AWS in production:
 | **Floci UI** | `4500` | `4500` | Browser Console Dashboard | `http://localhost:4500` |
 | **SQL Server** | `1433` | `1433` | Relational Database Engine | `sqlcmd -Q 'SELECT 1'` |
 | **VC Platform** | `80` | `8081` | Backend API & Admin Portal | `http://localhost:8081` |
-| **VC Storefront**| `80` | `8090` | Public Customer Webshop | `http://localhost:8090` |
+| **VC API Gateway** | `80` | `8090` | Unified Reverse Proxy & Router | `http://localhost:8090` |
+| **VC Storefront** | `80` | *(internal)* | Headless Vue 3 B2B Storefront SPA | `http://localhost:8090` |
 
 ### Default Administrative Credentials
 * **Platform Manager URL:** `http://localhost:8081` (or `http://localhost:8081/#!/login`)
@@ -375,25 +395,31 @@ docker compose down -v --remove-orphans
 
 ## 16. Visual Evidence & Screenshots
 
-All high-resolution, full-window screenshots are cataloged in the `screenshots/` directory:
+The visual evidence for the deployment is organized below with explicit capture guidelines. Replace the placeholders with your full-window screenshots saved in the `screenshots/` directory:
 
 ### Screenshot 1: Floci AWS Emulator & Web Console Running
-![Floci Running](screenshots/01_floci_running.png)
-* **URL / Source:** `http://localhost:4500` (or `http://localhost:4566/_floci/ui`)
+> 📷 **[Screenshot Placeholder 1 - Floci AWS Emulator & Web Console]**
+> * **Target File:** `screenshots/01_floci_running.png`
+> * **URL / Source:** `http://localhost:4500` (or `http://localhost:4566/_floci/ui`)
+> * **What to Capture:** Full browser window showing the Floci dashboard running with active S3 buckets and SQS queue indicators.
 * **Technical Explanation:** Demonstrates the Floci AWS emulator active on port `4566` with its web console dashboard on port `4500`. It visually confirms that the mock AWS control plane is running locally without incurring cloud costs.
 
 ---
 
 ### Screenshot 2: Docker Containers Overview
-![Docker Containers](screenshots/02_docker_containers.png)
-* **Command:** `docker compose ps`
-* **Technical Explanation:** Confirms all 3 core services (`vc-database`, `vc-platform-backend`, `vc-storefront-frontend`) are in **healthy** and running state, with correct port bindings (`1433`, `8081`, `8090`).
+> 📷 **[Screenshot Placeholder 2 - Docker Containers Overview]**
+> * **Target File:** `screenshots/02_docker_containers.png`
+> * **Command:** `docker compose ps`
+> * **What to Capture:** Terminal window showing all 4 core services (`vc-database`, `vc-platform-backend`, `vc-api-gateway`, `vc-storefront-frontend`) in running/healthy state with their respective ports (`1433`, `8081`, `8090`).
+* **Technical Explanation:** Confirms all core services are running in healthy state with correct port bindings (`1433`, `8081`, `8090`).
 
 ---
 
 ### Screenshot 3: Virto Commerce Platform API & Admin Portal
-![Virto Platform](screenshots/03_virto_platform.png)
-* **URL:** `http://localhost:8081/#!/login`
+> 📷 **[Screenshot Placeholder 3 - Virto Commerce Platform Admin]**
+> * **Target File:** `screenshots/03_virto_platform.png`
+> * **URL:** `http://localhost:8081/#!/login`
+> * **What to Capture:** Full browser window showing the Virto Commerce Platform administration portal login interface.
 * **Default Admin Credentials:**
   * **Username:** `admin`
   * **Password:** `store`
@@ -401,39 +427,47 @@ All high-resolution, full-window screenshots are cataloged in the `screenshots/`
 
 ---
 
-### Screenshot 4: Virto Commerce Storefront & Backend API Communication
-![Virto Storefront](screenshots/04_virto_storefront.png)
-* **URL:** `http://localhost:8090`
-* **Technical Explanation (Key DevOps Milestone):** Demonstrates the Storefront frontend container successfully running and establishing cross-container HTTP communication with the backend Platform container. The trace `VirtoCommerce.Storefront.AutoRestClients.StoreModuleApi.StoreModule.GetStoresWithHttpMessagesAsync` proves that the Storefront reached the Platform REST API. 
-* **Why `NotFound` is Expected & Valid:** In an unseeded, newly initialized Virto Commerce database, no default store catalog has yet been registered via the admin portal (`admin` / `store`). The backend API correctly responds with HTTP `NotFound (404)`. If container networking or backend resolution had failed, the Storefront would throw a fatal `HttpRequestException (Connection Refused)` or `502 Bad Gateway`. Thus, receiving a structured `NotFound` response from the backend REST service is definitive architectural proof of cross-container network connectivity as required by **Task 2** and **Task 6**.
-* **Optional Catalog Seeding:** Logging into `http://localhost:8081` with `admin` / `store` and creating a store named `default` immediately transitions the storefront to the full catalog shopping interface.
+### Screenshot 4: Virto Commerce Modern B2B Storefront (Headless Vue 3 SPA)
+> 📷 **[Screenshot Placeholder 4 - Modern B2B Storefront]**
+> * **Target File:** `screenshots/04_virto_storefront.png`
+> * **URL:** `http://localhost:8090`
+> * **What to Capture:** Full browser window of the live customer B2B storefront showing the top category navigation bar (*Bolts*, *Soft Drinks*, *Snacks*), search bar, product catalog grid with prices, stock status, and the interactive Cart button.
+* **Technical Explanation (Key DevOps Milestone):** Demonstrates the modern decoupled Headless Storefront successfully running via the NGINX API Gateway on port `8090`. The client-side Vue 3 Single Page Application establishes GraphQL communication with the Platform backend, rendering dynamic catalog categories, pricing, and product media without server-rendered template errors.
 
 ---
 
 ### Screenshot 5: Terraform Infrastructure Provisioning
-![Terraform Apply](screenshots/05_terraform_apply.png)
-* **Command:** `terraform output`
+> 📷 **[Screenshot Placeholder 5 - Terraform Infrastructure Provisioning]**
+> * **Target File:** `screenshots/05_terraform_apply.png`
+> * **Command:** `terraform output` (or `terraform apply`)
+> * **What to Capture:** Terminal window showing the successful Terraform apply output and provisioned resources on Floci.
 * **Technical Explanation:** Displays the declarative provisioning of AWS infrastructure on Floci using HashiCorp Terraform. It confirms the successful creation of the S3 media bucket (`virto-commerce-media-assets`), SQS queue (`virto-order-processing-queue`), and IAM task execution role (`virto-commerce-platform-role`).
 
 ---
 
 ### Screenshot 6: AWS CLI Verification on Floci
-![AWS CLI Verification](screenshots/06_s3_sqs_verification.png)
-* **Command:** `aws s3 ls --endpoint-url http://localhost:4566`
+> 📷 **[Screenshot Placeholder 6 - AWS CLI Verification]**
+> * **Target File:** `screenshots/06_s3_sqs_verification.png`
+> * **Command:** `aws s3 ls --endpoint-url http://localhost:4566`
+> * **What to Capture:** Terminal window showing standard AWS CLI commands listing the active bucket `virto-commerce-media-assets` and queue attributes against the local endpoint.
 * **Technical Explanation:** Demonstrates standard AWS CLI v2 interaction against the Floci local endpoint (`http://localhost:4566`), listing the provisioned S3 buckets (`virto-commerce-media-assets`) and validating standard AWS wire-protocol compatibility.
 
 ---
 
 ### Screenshot 7: Database Data Persistence Test (Task 6)
-![Data Persistence](screenshots/07_persistence_test.png)
-* **Command:** `docker compose restart vc-db ; docker compose ps`
+> 📷 **[Screenshot Placeholder 7 - Database Data Persistence Test]**
+> * **Target File:** `screenshots/07_persistence_test.png`
+> * **Command:** `docker compose restart vc-db ; docker compose ps`
+> * **What to Capture:** Terminal window showing the SQL Server container restarting and returning to healthy status while retaining all schema tables.
 * **Technical Explanation:** Fulfills the Task 6 persistence test requirement. Demonstrates that stopping and restarting the Microsoft SQL Server container preserves database state via the named Docker volume `vc-db-data`, returning to a healthy status without corruption or data loss.
 
 ---
 
 ### Screenshot 8: Deliberate Outage & Safe Recovery Demonstration (Task 6)
-![Failure Recovery](screenshots/08_failure_recovery.png)
-* **Command:** `docker compose stop vc-db ; docker compose ps ; docker compose start vc-db ; docker compose ps`
+> 📷 **[Screenshot Placeholder 8 - Failure Recovery Demonstration]**
+> * **Target File:** `screenshots/08_failure_recovery.png`
+> * **Command:** `docker compose stop vc-db ; docker compose ps ; docker compose start vc-db ; docker compose ps`
+> * **What to Capture:** Terminal window showing intentional database container shutdown, service decoupling, and subsequent healthy recovery upon restart.
 * **Technical Explanation:** Fulfills the Task 6 resilience requirement. Demonstrates deliberately stopping the database container to simulate an infrastructure outage, observing application decoupling, and restarting the service to demonstrate automatic system recovery.
 
 ---
@@ -452,10 +486,13 @@ During deployment and testing, several real-world DevOps challenges were identif
 * **Investigation:** The service was named `vc-platform`, while the explicit container name was `vc-platform-backend`.
 * **Resolution:** Configured network aliases (`vc-platform` and `vc-platform-backend`) under `virto-network` in `docker-compose.yml` so that inter-container DNS requests resolve seamlessly regardless of naming format.
 
-### 3. Storefront API `NotFound` Response on Fresh Database
-* **Symptom:** Navigating to `http://localhost:8090` returned `HttpOperationException: Operation returned an invalid status code 'NotFound'`.
-* **Investigation:** Inspection of the call stack showed `StoreModuleApi.GetStoresWithHttpMessagesAsync` successfully communicating with the backend. The HTTP 404 response indicated that the newly migrated SQL database did not yet have a default store catalog record created.
-* **Resolution:** Verified that this is expected default behavior for unseeded Virto Commerce instances; logged into the Platform Manager at `http://localhost:8081` to manage and seed store catalog entities.
+### 3. Storefront Modern Headless Architecture Migration (Replacing Legacy Liquid)
+* **Symptom:** The legacy Storefront container crashed with `HttpOperationException: 405 MethodNotAllowed` on `GET /api/stores` and threw `NoLiquidThemeMiddleware` when attempting server-side template compilation.
+* **Investigation:** Virto Commerce modernized its storefront architecture, moving away from monolithic server-rendered Liquid themes to a decoupled **Headless Single Page Application (SPA)** written in Vue 3 (`vc-frontend`) that communicates entirely over **GraphQL** (`/graphql`) and Experience APIs (`XFrontend`, `WhiteLabeling`, `ImageTools`, `ProfileExperienceApi`).
+* **Resolution:** 
+  1. Deployed the official Virto Commerce modern Vue 3 B2B theme into `cms-content/Themes/B2B-store/default/`.
+  2. Installed the required Experience API modules (`VirtoCommerce.XFrontend`, `VirtoCommerce.WhiteLabeling`, `VirtoCommerce.ImageTools`, `VirtoCommerce.ProfileExperienceApiModule`) into the Platform backend.
+  3. Integrated an **NGINX API Gateway** on port `8090` to cleanly reverse-proxy SPA requests, GraphQL queries, auth tokens, and catalog media, eliminating CORS issues and providing seamless HTML5 history routing.
 
 ### 4. AWS CLI Missing Credentials Error (`NoCredentials`)
 * **Symptom:** `aws s3 ls --endpoint-url http://localhost:4566` returned `Unable to locate credentials`.

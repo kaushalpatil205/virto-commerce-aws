@@ -11,3 +11,10 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# Media & Product Catalog Assets
+assets/
+
+# Downloaded Frontend Themes & Modules (Auto-provisioned via setup script)
+cms-content/
+modules/

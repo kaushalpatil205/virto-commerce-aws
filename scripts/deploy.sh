@@ -5,6 +5,13 @@ echo "=========================================="
 echo "Starting Virto Commerce Deployment via Docker"
 echo "=========================================="
 
+# Check and auto-provision modern B2B theme and Experience API modules if missing
+if [ ! -d "cms-content/Themes/B2B-store/default" ] || [ ! -d "modules/VirtoCommerce.XFrontend" ]; then
+    echo -e "\n[Step 0/4] Setting up modern B2B frontend and Experience API modules..."
+    chmod +x ./scripts/setup-modern-frontend.sh
+    ./scripts/setup-modern-frontend.sh
+fi
+
 echo -e "\n[Step 1/4] Starting Docker Compose services..."
 docker compose up -d
 
@@ -32,7 +39,7 @@ docker compose ps
 
 echo -e "\n========================================================"
 echo "Virto Commerce Deployment Successfully Initialized!"
-echo "Platform Admin:     http://localhost:8080"
+echo "Platform Admin:     http://localhost:8081"
 echo "Storefront Shop:    http://localhost:8090"
 echo "Floci AWS Endpoint: http://localhost:4566"
 echo "Floci Web Console:  http://localhost:4566/_floci/ui"

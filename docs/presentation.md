@@ -117,9 +117,9 @@
   * Default Admin Credentials: Username: `admin` | Password: `store`.
   * Confirms backend API is up and Entity Framework database migrations successfully seeded 40+ database tables.
 * **2. Virto Commerce Storefront (`http://localhost:8090`):**
-  * Accessible via web browser.
-  * Validates cross-container HTTP communication: Storefront invokes `StoreModuleApi.GetStoresWithHttpMessagesAsync` against Platform on port 80.
-  * Returns expected `NotFound` status code due to freshly initialized, unseeded catalog database (proving cross-container TCP & API reachability).
+  * Accessible via web browser through unified NGINX API Gateway.
+  * Official modern Vue 3 Single Page Application (`vc-frontend`) connecting to backend GraphQL API.
+  * Live interactive catalog with categories (Bolts, Soft Drinks, Snacks), dynamic pricing, and shopping cart.
 * **3. Floci Web Console (`http://localhost:4500`):**
   * Displays visual confirmation of provisioned S3 buckets and SQS queues.
 * **4. AWS CLI Verification:**
@@ -152,9 +152,9 @@
 * **Issue 2: Inter-Container DNS Routing Mismatch**
   * *Root Cause:* Storefront failed with `HttpRequestException: Name or service not known (vc-platform:80)` due to naming differences between service name and container name.
   * *Resolution:* Added network aliases in Docker Compose (`vc-platform`, `vc-platform-backend`) ensuring resolution across all formats.
-* **Issue 3: Storefront `NotFound` Status Code on Fresh Boot**
-  * *Root Cause:* Storefront called `GetStoresWithHttpMessagesAsync` and received HTTP 404 because an unseeded database contains no default store record.
-  * *Resolution:* Verified as proof of working API connectivity; managed via Platform Manager on port 8081.
+* **Issue 3: Storefront Modern Headless Architecture Migration**
+  * *Root Cause:* Legacy server-rendered Liquid Storefront container crashed against modern Platform 3 APIs and required external template compilation.
+  * *Resolution:* Modernized to official Virto Commerce Vue 3 B2B SPA (`vc-frontend`) using GraphQL Experience API modules (`XFrontend`, `WhiteLabeling`, `ImageTools`, `ProfileExperienceApi`) fronted by an NGINX API Gateway on port 8090.
 * **Issue 4: AWS CLI `NoCredentials` Error**
   * *Root Cause:* AWS CLI v2 requires non-empty credential strings to construct authorization headers, even on mock emulators.
   * *Resolution:* Configured dummy credentials via `aws configure set aws_access_key_id test`.

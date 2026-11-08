@@ -47,35 +47,72 @@ services:
       - "8081:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      # --- Automated Background Job Engine Configuration ---
+      - VirtoCommerce__BackgroundJobs__Provider=InMemory
+      - VirtoCommerce__BackgroundJobs__Mode=Both
+      - VirtoCommerce__BackgroundJobs__EnableLegacyHangfire=true
+      # --- Automated Module Bundles Installation ---
+      - ExternalModules__AutoInstallModuleBundles=commerce
+      # --- Database Connection ---
       - ConnectionStrings__VirtoCommerce=Data Source=vc-db;Initial Catalog=VirtoCommerce3;Persist Security Info=True;User ID=sa;Password=VirtoCommerce@2026!;TrustServerCertificate=True;MultipleActiveResultSets=True;Connect Timeout=60;
-      - ConnectionStrings__AssetsConnectionString=provider=LocalStorage;rootPath=~/App_Data/Assets;publicUrl=http://localhost:8081/assets
+      # --- Asset Storage & AWS Emulation ---
+      - Assets__FileSystem__PublicUrl=http://localhost:8090/assets/
+      - Content__FileSystem__PublicUrl=http://localhost:8090/cms-content/
+      - ConnectionStrings__AssetsConnectionString=provider=LocalStorage;rootPath=~/App_Data/Assets;publicUrl=http://localhost:8090/assets
       - VirtoCommerce__AWS__ServiceUrl=http://host.docker.internal:4566
       - VirtoCommerce__AWS__Region=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
     volumes:
-      - vc-platform-data:/app/App_Data
+      - vc-platform-data:/opt/virtocommerce/platform/app_data
+      - ./modules:/opt/virtocommerce/platform/modules
+      - ./assets:/opt/virtocommerce/platform/wwwroot/assets
     networks:
       virto-network:
         aliases:
-          - vc-platform
+          - vc-platform-real
           - vc-platform-backend
 
-  # 3. Virto Commerce Frontend Storefront
-  vc-storefront:
-    image: virtocommerce/storefront:latest
-    container_name: vc-storefront-frontend
+  # 3. API Gateway & Headless Storefront Router
+  vc-api-gateway:
+    image: nginx:alpine
+    container_name: vc-api-gateway
     restart: unless-stopped
     depends_on:
       - vc-platform
     ports:
       - "8090:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      virto-network:
+        aliases:
+          - vc-platform
+
+  # 4. Virto Commerce Frontend Storefront
+  vc-storefront:
+    image: virtocommerce/storefront:latest
+    container_name: vc-storefront-frontend
+    restart: unless-stopped
+    depends_on:
+      - vc-api-gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - VirtoCommerce__Endpoint__Url=http://vc-platform
+      - VirtoCommerce__Endpoint__Url=http://vc-api-gateway
       - ConnectionStrings__ContentConnectionString=provider=LocalStorage;rootPath=~/cms-content
     volumes:
-      - vc-storefront-data:/app/cms-content
+      - ./cms-content:/opt/virtocommerce/storefront/cms-content
+      - ./cms-content:/opt/virtocommerce/storefront/wwwroot/cms-content
+      - ./cms-content:/root/cms-content
+      - ./cms-content/Themes/B2B-store/default/assets:/opt/virtocommerce/storefront/wwwroot/assets
+      - ./cms-content/Themes/B2B-store/default/static:/opt/virtocommerce/storefront/wwwroot/static
+      - ./cms-content/Themes/B2B-store/default/content:/opt/virtocommerce/storefront/wwwroot/content
+      - ./cms-content/Themes/B2B-store/default/remoteEntry-D1qz1iUe.js:/opt/virtocommerce/storefront/wwwroot/remoteEntry-D1qz1iUe.js
+      - ./cms-content/Themes/B2B-store/default/favicon.ico:/opt/virtocommerce/storefront/wwwroot/favicon.ico
+      - ./cms-content/Themes/B2B-store/default/mf-manifest.json:/opt/virtocommerce/storefront/wwwroot/mf-manifest.json
+      - ./cms-content/Themes/B2B-store/default/mf-stats.json:/opt/virtocommerce/storefront/wwwroot/mf-stats.json
+      - ./cms-content/Themes/B2B-store/default/robots.txt:/opt/virtocommerce/storefront/wwwroot/robots.txt
+      - ./cms-content/Themes/B2B-store/default/fcm-service-worker-v1.12.js:/opt/virtocommerce/storefront/wwwroot/fcm-service-worker-v1.12.js
     networks:
       - virto-network
