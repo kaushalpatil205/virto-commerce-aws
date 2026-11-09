@@ -396,12 +396,8 @@ Start-Sleep -Seconds 15</pre>
   <strong>Step 5: Complete Command Block for Search Indexing & Storefront Binding</strong>
   <p><strong>macOS / Linux (Bash):</strong></p>
   <pre># 1. Obtain API token
-TOKEN=$(curl -s -X POST http://localhost:8081/connect/token \\
-  -d "grant_type=password&username=admin&password=store" | \\
-  python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null || \\
-  curl -s -X POST http://localhost:8081/connect/token \\
-  -d "grant_type=password&username=admin&password=Store@2026!" | \\
-  python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null)
+TOKEN=$(curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=store" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("access_token",""))')
+[ -z "$TOKEN" ] &amp;&amp; TOKEN=$(curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=Store@2026!" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("access_token",""))')
 
 # 2. Trigger search index rebuild for Products, Categories, and Members
 curl -s -X POST http://localhost:8081/api/search/indexes/index \\
