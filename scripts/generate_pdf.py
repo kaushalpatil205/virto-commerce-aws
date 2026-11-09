@@ -34,7 +34,7 @@ html_content = f"""<!DOCTYPE html>
 <style>
   @page {{
     size: A4;
-    margin: 15mm 13mm 15mm 13mm;
+    margin: 14mm 12mm 14mm 12mm;
     @bottom-right {{
       content: counter(page);
       font-size: 8.5pt;
@@ -45,7 +45,7 @@ html_content = f"""<!DOCTYPE html>
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1e293b;
     line-height: 1.48;
-    font-size: 9.8pt;
+    font-size: 9.6pt;
     margin: 0;
     padding: 0;
   }}
@@ -55,14 +55,14 @@ html_content = f"""<!DOCTYPE html>
     padding-top: 130px;
   }}
   .cover h1 {{
-    font-size: 24pt;
+    font-size: 23pt;
     color: #0f172a;
     margin-bottom: 8px;
     font-weight: 800;
     letter-spacing: -0.5px;
   }}
   .cover h2 {{
-    font-size: 13.5pt;
+    font-size: 13pt;
     color: #2563eb;
     font-weight: 600;
     margin-bottom: 35px;
@@ -74,7 +74,7 @@ html_content = f"""<!DOCTYPE html>
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 22px 28px;
-    width: 75%;
+    width: 78%;
     margin: 50px auto 0 auto;
     text-align: left;
     font-size: 10pt;
@@ -89,17 +89,17 @@ html_content = f"""<!DOCTYPE html>
     width: 160px;
   }}
   h2.section-title {{
-    font-size: 13pt;
+    font-size: 12.8pt;
     color: #0f172a;
     border-bottom: 2px solid #2563eb;
     padding-bottom: 4px;
-    margin-top: 22px;
+    margin-top: 20px;
     margin-bottom: 10px;
     font-weight: 700;
     page-break-after: avoid;
   }}
   h3.subsection-title {{
-    font-size: 10.5pt;
+    font-size: 10.3pt;
     color: #1d4ed8;
     margin-top: 14px;
     margin-bottom: 5px;
@@ -125,11 +125,15 @@ html_content = f"""<!DOCTYPE html>
   pre {{
     background: #0f172a;
     color: #f8fafc;
-    padding: 9px 11px;
-    border-radius: 5px;
-    overflow-x: auto;
-    margin: 6px 0;
-    line-height: 1.35;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin: 8px 0;
+    line-height: 1.45;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    border: 1px solid #1e293b;
   }}
   .callout {{
     background: #eff6ff;
@@ -152,7 +156,7 @@ html_content = f"""<!DOCTYPE html>
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     padding: 10px 12px;
-    margin: 10px 0;
+    margin: 12px 0;
     page-break-inside: avoid;
   }}
   .cmd-box strong {{
@@ -164,7 +168,7 @@ html_content = f"""<!DOCTYPE html>
   .cmd-explain {{
     font-size: 8.8pt;
     color: #475569;
-    margin-top: 5px;
+    margin-top: 6px;
     margin-bottom: 0;
   }}
   .screenshot-card {{
@@ -178,7 +182,7 @@ html_content = f"""<!DOCTYPE html>
   }}
   .screenshot-card img {{
     width: 100%;
-    max-height: 430px;
+    max-height: 420px;
     object-fit: contain;
     border-radius: 4px;
     border: 1px solid #e2e8f0;
@@ -354,15 +358,19 @@ docker compose ps</pre>
 <div class="cmd-box">
   <strong>Step 2: Configure Password Policy Length</strong>
   <p><strong>macOS / Linux (Bash):</strong></p>
-  <pre>docker exec vc-platform-backend sed -i 's/"RequiredLength": 8/"RequiredLength": 5/g' /opt/virtocommerce/platform/appsettings.json
+  <pre>docker exec vc-platform-backend sed -i \\
+  's/"RequiredLength": 8/"RequiredLength": 5/g' \\
+  /opt/virtocommerce/platform/appsettings.json
 docker restart vc-platform-backend
 sleep 15</pre>
   <p><strong>Windows (PowerShell):</strong></p>
-  <pre>docker exec vc-platform-backend sed -i 's/"RequiredLength": 8/"RequiredLength": 5/g' /opt/virtocommerce/platform/appsettings.json
+  <pre>docker exec vc-platform-backend sed -i `
+  's/"RequiredLength": 8/"RequiredLength": 5/g' `
+  /opt/virtocommerce/platform/appsettings.json
 docker restart vc-platform-backend
 Start-Sleep -Seconds 15</pre>
   <p class="cmd-explain"><strong>What each command does:</strong><br>
-  &bull; <code>docker exec ... sed -i</code>: Executes stream editor inside the backend container to modify ASP.NET Core Identity's <code>RequiredLength</code> setting from 8 characters to 5 characters in <code>appsettings.json</code>.<br>
+  &bull; <code>docker exec ... sed -i</code>: Executes stream editor inside the backend container to modify ASP.NET Core Identity's <code>RequiredLength</code> setting from 8 characters to 5 characters in <code>/opt/virtocommerce/platform/appsettings.json</code>.<br>
   &bull; <code>docker restart vc-platform-backend</code>: Restarts Kestrel web host to reload configuration into memory so the 5-character policy takes effect.<br>
   &bull; <code>sleep 15</code>: Allows the .NET 8 Kestrel host and Hangfire background workers to complete re-initialization.</p>
 </div>
@@ -388,12 +396,17 @@ Start-Sleep -Seconds 15</pre>
   <strong>Step 5: Complete Command Block for Search Indexing & Storefront Binding</strong>
   <p><strong>macOS / Linux (Bash):</strong></p>
   <pre># 1. Obtain API token
-TOKEN=$(curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=store" | python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null || curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=Store@2026!" | python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null)
+TOKEN=$(curl -s -X POST http://localhost:8081/connect/token \\
+  -d "grant_type=password&username=admin&password=store" | \\
+  python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null || \\
+  curl -s -X POST http://localhost:8081/connect/token \\
+  -d "grant_type=password&username=admin&password=Store@2026!" | \\
+  python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null)
 
 # 2. Trigger search index rebuild for Products, Categories, and Members
-curl -s -X POST http://localhost:8081/api/search/indexes/index \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
+curl -s -X POST http://localhost:8081/api/search/indexes/index \\
+  -H "Authorization: Bearer $TOKEN" \\
+  -H "Content-Type: application/json" \\
   -d '[
     {{"documentType": "Category", "deleteExistingIndex": true}},
     {{"documentType": "Product", "deleteExistingIndex": true}},
@@ -406,18 +419,27 @@ docker restart vc-storefront-frontend
 sleep 5
 
 # 4. Check index counts
-curl -s -X GET http://localhost:8081/api/search/indexes -H "Authorization: Bearer $TOKEN"</pre>
+curl -s -X GET http://localhost:8081/api/search/indexes \\
+  -H "Authorization: Bearer $TOKEN"</pre>
 
   <p><strong>Windows (PowerShell):</strong></p>
   <pre># 1. Obtain API token
-$tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" -Method Post -Body "grant_type=password&username=admin&password=store" -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
+$tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" `
+  -Method Post `
+  -Body "grant_type=password&username=admin&password=store" `
+  -ContentType "application/x-www-form-urlencoded" `
+  -ErrorAction SilentlyContinue
 if (-not $tokenResponse.access_token) {{
-    $tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" -Method Post -Body "grant_type=password&username=admin&password=Store@2026!" -ContentType "application/x-www-form-urlencoded"
+    $tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" `
+      -Method Post `
+      -Body "grant_type=password&username=admin&password=Store@2026!" `
+      -ContentType "application/x-www-form-urlencoded"
 }}
 $TOKEN = $tokenResponse.access_token
 
 # 2. Trigger search index rebuild for Products, Categories, and Members
-Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes/index" -Method Post `
+Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes/index" `
+  -Method Post `
   -Headers @{{ "Authorization" = "Bearer $TOKEN"; "Content-Type" = "application/json" }} `
   -Body '[{{"documentType":"Category","deleteExistingIndex":true}},{{"documentType":"Product","deleteExistingIndex":true}},{{"documentType":"Member","deleteExistingIndex":true}}]'
 
@@ -427,7 +449,8 @@ docker restart vc-storefront-frontend
 Start-Sleep -Seconds 5
 
 # 4. Check index counts
-Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes" -Headers @{{ "Authorization" = "Bearer $TOKEN" }}</pre>
+Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes" `
+  -Headers @{{ "Authorization" = "Bearer $TOKEN" }}</pre>
 
   <p class="cmd-explain"><strong>Comprehensive In-Depth Explanation of Each Sub-Command in Step 5:</strong><br>
   &bull; <strong>Sub-Command 1 (Obtain API Token):</strong> Virto Commerce Platform secures all administrative endpoints with OpenIddict OAuth 2.0. This command dispatches a <code>POST /connect/token</code> request with <code>grant_type=password</code>, passing the admin credentials. Python's standard <code>json</code> library extracts the Bearer <code>access_token</code> from the response payload and assigns it to the environment variable <code>$TOKEN</code>.<br>
