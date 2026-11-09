@@ -91,6 +91,9 @@ else
 
         if [ "$STORES" -ge 1 ] && [ "$PRODUCTS" -ge 389 ]; then
             echo -e "\n  ✓ Import successfully completed!"
+            # The sample data dump from Virto Commerce seeds admin with PasswordExpired = 1.
+            # Since the admin already reset their password in Step 3, clear this flag so Storefront does not re-prompt.
+            docker exec vc-database /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'VirtoCommerce@2026!' -C -Q "SET QUOTED_IDENTIFIER ON; UPDATE VirtoCommerce3.dbo.AspNetUsers SET PasswordExpired = 0, LockoutEnd = NULL WHERE UserName = 'admin';" > /dev/null 2>&1 || true
             break
         fi
     done
