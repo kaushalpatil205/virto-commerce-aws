@@ -101,3 +101,9 @@ fi
 
 echo -e "\nFinal Verified Entity Counts in Database:"
 docker exec vc-database /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'VirtoCommerce@2026!' -C -Q "SELECT (SELECT COUNT(*) FROM VirtoCommerce3.dbo.Store) as Stores, (SELECT COUNT(*) FROM VirtoCommerce3.dbo.Catalog) as Catalogs, (SELECT COUNT(*) FROM VirtoCommerce3.dbo.Category) as Categories, (SELECT COUNT(*) FROM VirtoCommerce3.dbo.Item) as Products"
+
+
+
+#created an automated script that
+#calls Virto Commerce's official backend auto-installer endpoint (/api/platform/sampledata/autoinstall),
+#streaming the authentic 59.5 MB catalog dataset from Virto's official Azure CDN into SQL Server

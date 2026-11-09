@@ -34,7 +34,7 @@ html_content = f"""<!DOCTYPE html>
 <style>
   @page {{
     size: A4;
-    margin: 16mm 14mm 16mm 14mm;
+    margin: 15mm 13mm 15mm 13mm;
     @bottom-right {{
       content: counter(page);
       font-size: 8.5pt;
@@ -44,15 +44,15 @@ html_content = f"""<!DOCTYPE html>
   body {{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1e293b;
-    line-height: 1.5;
-    font-size: 10pt;
+    line-height: 1.48;
+    font-size: 9.8pt;
     margin: 0;
     padding: 0;
   }}
   .cover {{
     page-break-after: always;
     text-align: center;
-    padding-top: 120px;
+    padding-top: 130px;
   }}
   .cover h1 {{
     font-size: 24pt;
@@ -62,7 +62,7 @@ html_content = f"""<!DOCTYPE html>
     letter-spacing: -0.5px;
   }}
   .cover h2 {{
-    font-size: 14pt;
+    font-size: 13.5pt;
     color: #2563eb;
     font-weight: 600;
     margin-bottom: 35px;
@@ -89,20 +89,20 @@ html_content = f"""<!DOCTYPE html>
     width: 160px;
   }}
   h2.section-title {{
-    font-size: 13.5pt;
+    font-size: 13pt;
     color: #0f172a;
     border-bottom: 2px solid #2563eb;
-    padding-bottom: 5px;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    padding-bottom: 4px;
+    margin-top: 22px;
+    margin-bottom: 10px;
     font-weight: 700;
     page-break-after: avoid;
   }}
   h3.subsection-title {{
-    font-size: 11pt;
+    font-size: 10.5pt;
     color: #1d4ed8;
-    margin-top: 16px;
-    margin-bottom: 6px;
+    margin-top: 14px;
+    margin-bottom: 5px;
     font-weight: 600;
     page-break-after: avoid;
   }}
@@ -111,41 +111,41 @@ html_content = f"""<!DOCTYPE html>
     text-align: justify;
   }}
   ul, ol {{
-    margin-top: 4px;
-    margin-bottom: 10px;
-    padding-left: 22px;
+    margin-top: 3px;
+    margin-bottom: 8px;
+    padding-left: 20px;
   }}
   li {{
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }}
   pre, code {{
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 8.5pt;
+    font-size: 8pt;
   }}
   pre {{
     background: #0f172a;
     color: #f8fafc;
-    padding: 10px 12px;
-    border-radius: 6px;
+    padding: 9px 11px;
+    border-radius: 5px;
     overflow-x: auto;
-    margin: 8px 0;
-    line-height: 1.4;
+    margin: 6px 0;
+    line-height: 1.35;
   }}
   .callout {{
     background: #eff6ff;
     border-left: 4px solid #3b82f6;
-    padding: 10px 14px;
-    margin: 12px 0;
-    border-radius: 0 6px 6px 0;
-    font-size: 9.5pt;
+    padding: 9px 13px;
+    margin: 10px 0;
+    border-radius: 0 5px 5px 0;
+    font-size: 9pt;
   }}
   .callout-amber {{
     background: #fffbeb;
     border-left: 4px solid #f59e0b;
-    padding: 10px 14px;
-    margin: 12px 0;
-    border-radius: 0 6px 6px 0;
-    font-size: 9.5pt;
+    padding: 9px 13px;
+    margin: 10px 0;
+    border-radius: 0 5px 5px 0;
+    font-size: 9pt;
   }}
   .cmd-box {{
     background: #f8fafc;
@@ -162,7 +162,7 @@ html_content = f"""<!DOCTYPE html>
     margin-bottom: 4px;
   }}
   .cmd-explain {{
-    font-size: 9pt;
+    font-size: 8.8pt;
     color: #475569;
     margin-top: 5px;
     margin-bottom: 0;
@@ -171,28 +171,28 @@ html_content = f"""<!DOCTYPE html>
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    padding: 10px;
-    margin: 14px 0;
+    padding: 9px;
+    margin: 12px 0;
     page-break-inside: avoid;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }}
   .screenshot-card img {{
     width: 100%;
-    max-height: 440px;
+    max-height: 430px;
     object-fit: contain;
     border-radius: 4px;
     border: 1px solid #e2e8f0;
     background: #000000;
   }}
   .screenshot-caption {{
-    font-size: 9pt;
+    font-size: 8.8pt;
     font-weight: 700;
     color: #0f172a;
-    margin-top: 6px;
+    margin-top: 5px;
     text-align: center;
   }}
   .screenshot-desc {{
-    font-size: 8.5pt;
+    font-size: 8.2pt;
     color: #64748b;
     margin-top: 3px;
     text-align: justify;
@@ -331,9 +331,7 @@ The script provides a deterministic, hands-off sample data installation:
 <div class="page-break"></div>
 
 <!-- SECTION 4: STEP-BY-STEP COMMAND EXPLANATIONS -->
-<h2 class="section-title">4. Multi-Platform Execution Runbook & Command Explanations</h2>
-
-<p>Every command executed during the setup is documented below with its exact technical purpose.</p>
+<h2 class="section-title">4. Multi-Platform Execution Runbook & In-Depth Command Explanations</h2>
 
 <div class="cmd-box">
   <strong>Step 1: Start All Docker Services</strong>
@@ -387,20 +385,55 @@ Start-Sleep -Seconds 15</pre>
 </div>
 
 <div class="cmd-box">
-  <strong>Step 5: Build Lucene Search Indexes & Reload Storefront</strong>
+  <strong>Step 5: Complete Command Block for Search Indexing & Storefront Binding</strong>
   <p><strong>macOS / Linux (Bash):</strong></p>
-  <pre>curl -s -X POST http://localhost:8081/api/search/indexes/index \\
-  -H "api_key: 27e044390e2949779ee050d26732f91a" \\
-  -H "Content-Type: application/json" \\
-  -d '[{{"documentType":"Category","deleteExistingIndex":true}},{{"documentType":"Product","deleteExistingIndex":true}},{{"documentType":"Member","deleteExistingIndex":true}}]'
+  <pre># 1. Obtain API token
+TOKEN=$(curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=store" | python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null || curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=Store@2026!" | python3 -c "import sys, json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null)
+
+# 2. Trigger search index rebuild for Products, Categories, and Members
+curl -s -X POST http://localhost:8081/api/search/indexes/index \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '[
+    {{"documentType": "Category", "deleteExistingIndex": true}},
+    {{"documentType": "Product", "deleteExistingIndex": true}},
+    {{"documentType": "Member", "deleteExistingIndex": true}}
+  ]'
+
+# 3. Wait 5 seconds and restart Storefront to bind to the newly imported store context
 sleep 5
 docker restart vc-storefront-frontend
 sleep 5
-curl -s http://localhost:8081/api/search/indexes -H "api_key: 27e044390e2949779ee050d26732f91a"</pre>
-  <p class="cmd-explain"><strong>What each command does:</strong><br>
-  &bull; <code>curl -X POST .../api/search/indexes/index</code>: Tells LuceneSearchProvider to index Category, Product, and Member records into Lucene inverted index files on disk.<br>
-  &bull; <code>docker restart vc-storefront-frontend</code>: Flushes Storefront in-memory cache and reloads the newly imported B2B-store context.<br>
-  &bull; <code>curl -X GET .../api/search/indexes</code>: Verifies active index counts: Product: 389, Category: 123, Member: 45.</p>
+
+# 4. Check index counts
+curl -s -X GET http://localhost:8081/api/search/indexes -H "Authorization: Bearer $TOKEN"</pre>
+
+  <p><strong>Windows (PowerShell):</strong></p>
+  <pre># 1. Obtain API token
+$tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" -Method Post -Body "grant_type=password&username=admin&password=store" -ContentType "application/x-www-form-urlencoded" -ErrorAction SilentlyContinue
+if (-not $tokenResponse.access_token) {{
+    $tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" -Method Post -Body "grant_type=password&username=admin&password=Store@2026!" -ContentType "application/x-www-form-urlencoded"
+}}
+$TOKEN = $tokenResponse.access_token
+
+# 2. Trigger search index rebuild for Products, Categories, and Members
+Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes/index" -Method Post `
+  -Headers @{{ "Authorization" = "Bearer $TOKEN"; "Content-Type" = "application/json" }} `
+  -Body '[{{"documentType":"Category","deleteExistingIndex":true}},{{"documentType":"Product","deleteExistingIndex":true}},{{"documentType":"Member","deleteExistingIndex":true}}]'
+
+# 3. Wait 5 seconds and restart Storefront to bind to the newly imported store context
+Start-Sleep -Seconds 5
+docker restart vc-storefront-frontend
+Start-Sleep -Seconds 5
+
+# 4. Check index counts
+Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes" -Headers @{{ "Authorization" = "Bearer $TOKEN" }}</pre>
+
+  <p class="cmd-explain"><strong>Comprehensive In-Depth Explanation of Each Sub-Command in Step 5:</strong><br>
+  &bull; <strong>Sub-Command 1 (Obtain API Token):</strong> Virto Commerce Platform secures all administrative endpoints with OpenIddict OAuth 2.0. This command dispatches a <code>POST /connect/token</code> request with <code>grant_type=password</code>, passing the admin credentials. Python's standard <code>json</code> library extracts the Bearer <code>access_token</code> from the response payload and assigns it to the environment variable <code>$TOKEN</code>.<br>
+  &bull; <strong>Sub-Command 2 (Trigger Search Index Rebuild):</strong> Although sample data was written to SQL Server, relational databases are not directly queried for customer catalog browsing and facet filtering because full-text relational scans are slow. This command calls <code>POST /api/search/indexes/index</code> with a JSON array targeting three core entity types: <code>Category</code> (category hierarchies and URL slugs), <code>Product</code> (catalog items, SKUs, brand attributes like FABORY, prices, stock), and <code>Member</code> (user profiles). Setting <code>deleteExistingIndex: true</code> instructs Lucene to purge stale index segments and rebuild the inverted full-text index from scratch.<br>
+  &bull; <strong>Sub-Command 3 (Wait & Restart Storefront):</strong> The <code>sleep 5</code> command provides sufficient time for the background Lucene indexing workers on the platform backend to write and commit index segments to disk. The subsequent <code>docker restart vc-storefront-frontend</code> flushes Storefront's in-memory cache, forcing ASP.NET Core to query the platform backend afresh, bind to the newly imported "B2B-store" entity, and connect to the populated product catalog.<br>
+  &bull; <strong>Sub-Command 4 (Check Index Counts):</strong> Dispatches an authorized <code>GET /api/search/indexes</code> request. The platform responds with a structured JSON array confirming active indexed document counts: <code>Product: 389</code>, <code>Category: 123</code>, and <code>Member: 45</code>. <em>(Note: The administrative API key <code>-H "api_key: 27e044390e2949779ee050d26732f91a"</code> can also be used interchangeably with <code>Authorization: Bearer $TOKEN</code>)</em>.</p>
 </div>
 
 <div class="cmd-box">
