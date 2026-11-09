@@ -11,7 +11,19 @@ volumes:
     driver: local
 
 services:
-  # 1. Database Engine (SQL Server 2022)
+  # 1. AWS Local Cloud Emulator (Floci)
+  vc-floci:
+    image: floci/floci:latest
+    container_name: vc-floci
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    networks:
+      virto-network:
+        aliases:
+          - floci
+
+  # 2. Database Engine (SQL Server 2022)
   vc-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: vc-database
@@ -55,7 +67,7 @@ services:
       - Assets__FileSystem__PublicUrl=http://localhost:8081/assets/
       - Content__FileSystem__PublicUrl=http://localhost:8081/cms-content/
       - ConnectionStrings__AssetsConnectionString=provider=LocalStorage;rootPath=~/App_Data/Assets;publicUrl=http://localhost:8081/assets
-      - VirtoCommerce__AWS__ServiceUrl=http://host.docker.internal:4566
+      - VirtoCommerce__AWS__ServiceUrl=http://floci:4566
       - VirtoCommerce__AWS__Region=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
