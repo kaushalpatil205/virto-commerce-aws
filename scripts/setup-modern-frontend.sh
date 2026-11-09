@@ -11,9 +11,13 @@ cd "$ROOT_DIR"
 
 # 1. Official Modern B2B Vue 3 Theme
 echo -e "\n[1/5] Downloading Official Modern B2B Theme (vc-frontend v2.61.0)..."
-mkdir -p cms-content/Themes/B2B-store/default
+mkdir -p cms-content/Themes/B2B-store
 curl -s -L -o /tmp/vc-theme-b2b-vue.zip "https://github.com/VirtoCommerce/vc-frontend/releases/download/2.61.0/vc-theme-b2b-vue-2.61.0.zip"
-unzip -q -o /tmp/vc-theme-b2b-vue.zip -d cms-content/Themes/B2B-store/default/
+unzip -q -o /tmp/vc-theme-b2b-vue.zip -d cms-content/Themes/B2B-store/
+if [ -d "cms-content/Themes/B2B-store/default/default" ]; then
+    cp -r cms-content/Themes/B2B-store/default/default/* cms-content/Themes/B2B-store/default/ 2>/dev/null || true
+    rm -rf cms-content/Themes/B2B-store/default/default
+fi
 rm -f /tmp/vc-theme-b2b-vue.zip
 echo "  ✓ Modern B2B Theme installed into cms-content/Themes/B2B-store/default"
 
