@@ -392,51 +392,69 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 ## 4. Visual Verification
 
-### Screenshot 1: Floci AWS Emulator & Web Console Running
-![Floci Running](../screenshots/01_floci_running.png)
-*Demonstrates the Floci AWS emulator active on port `4566` with its web console dashboard on port `4500`.*
-
----
-
-### Screenshot 2: Docker Containers Overview (`docker compose ps`)
-![Containers Running](../screenshots/02_docker_containers.png)
+### Milestone 1: Docker Containers Overview (`docker compose ps`)
+![Containers Running](../screenshots/1%20%E2%80%94%20Containers%20Running.png)
 *Confirms all 4 core containers running healthy: `vc-floci` (port 4566/4500), `vc-database` (port 1433), `vc-platform-backend` (port 8081), and `vc-storefront-frontend` (port 8090).*
 
 ---
 
-### Screenshot 3: Virto Commerce Platform API & Admin Portal
-![Platform Admin Dashboard](../screenshots/03_virto_platform.png)
+### Milestone 2A: Authentic Virto Commerce Password Reset Prompt
+![Password Reset Screen](../screenshots/2A%20%E2%80%94%20Password%20Reset%20Screen.png)
+*Demonstrates the official ASP.NET Identity password reset flow on `http://localhost:8081`. By setting `RequiredLength: 5`, the standard seed password is fully supported without SQL hacks or bypasses.*
+
+---
+
+### Milestone 2B: Platform Admin Management Dashboard
+![Platform Admin Dashboard](../screenshots/2B%20%E2%80%94%20Platform%20Admin%20Dashboard.png)
 *Shows the live administration console on port 8081 after completing the password reset. Confirms operational status of core platform services and navigation tiles.*
 
 ---
 
-### Screenshot 4: Virto Commerce Modern Storefront Homepage & Catalog
-![Storefront Homepage](../screenshots/04_virto_storefront.png)
+### Milestone 2C: Platform Admin Active Modules Overview
+![Platform Admin Modules](../screenshots/2B%20%E2%80%94%20Platform%20Admin%20Modules.png)
+*Validates pre-loaded modules in Platform Admin, confirming `VirtoCommerce.XFrontend` (v3.1009.0), `VirtoCommerce.WhiteLabeling`, and `VirtoCommerce.ImageTools` are registered and active.*
+
+---
+
+### Milestone 3: Official Sample Data Installation (SQL Server Verified)
+![Sample Data Installed](../screenshots/3%20%E2%80%94%20Sample%20Data%20Installed.png)
+*Terminal output of `scripts/install-sample-data.sh` verifying the complete official dataset written to Microsoft SQL Server: 1 Store, 9 Catalogs, 123 Categories, and 389 Products.*
+
+---
+
+### Milestone 5: Modern Decoupled B2B Storefront Homepage (Port 8090)
+![Storefront Homepage](../screenshots/5%20%E2%80%94%20Storefront%20Homepage.png)
 *Live customer storefront showing top navigation bar with **All products**, **Bolts**, Snacks, Soft Drinks, search bar, interactive shopping cart, and regional currency selector.*
 
 ---
 
-### Screenshot 5: Terraform Infrastructure Provisioning Output
-![Terraform Apply Output](../screenshots/05_terraform_apply.png)
+### Milestone 6: All Products MegaMenu Navigation
+![All Products MegaMenu](../screenshots/6%20%E2%80%94%20All%20Products%20MegaMenu.png)
+*Expanded MegaMenu dropdown showing real-time GraphQL hierarchy navigation across all imported categories without template crashes.*
+
+---
+
+### Milestone 7: Bolts Category View (`/bolts`)
+![Bolts Category](../screenshots/7%20%E2%80%94%20Bolts%20Category.png)
+*Shows 34 products in the Bolts category, dynamic subcategory filtering (Carriage Bolts, Eyebolts, Flange Bolts), FABORY brand items, pricing, and stock status indicators.*
+
+---
+
+### Milestone 8: Complete Full B2B Product Catalog (`/catalog`)
+![Full B2B Catalog](../screenshots/8%20%E2%80%94%20Full%20B2B%20Catalog.png)
+*Catalog grid displaying 139 B2B items, price facet filtering, brand sorting, and pagination controls powered by Lucene Search and GraphQL.*
+
+---
+
+### Milestone 9: Terraform Infrastructure Provisioning Output
+![Terraform Apply Output](../screenshots/9%20%E2%80%94%20Terraform%20Apply%20Output.png)
 *Terminal showing HashiCorp Terraform apply completing with `Resources: 5 added, 0 changed, 0 destroyed` against the local Floci emulator endpoint (`http://localhost:4566`).*
 
 ---
 
-### Screenshot 6: AWS CLI Verification on Floci
-![AWS CLI S3 and SQS Verification](../screenshots/06_s3_sqs_verification.png)
+### Milestone 10: Floci AWS CLI S3 & SQS Verification
+![Floci AWS S3 and SQS Verification](../screenshots/10%20%E2%80%94%20Floci%20AWS%20S3%20%26%20SQS%20Verification.png)
 *Standard AWS CLI v2 listing active S3 bucket `virto-commerce-media-assets` and SQS queue URL `virto-order-processing-queue` on Floci endpoint (`http://localhost:4566`).*
-
----
-
-### Screenshot 7: Database Data Persistence Test (Task 6)
-![Data Persistence Test](../screenshots/07_persistence_test.png)
-*Fulfills the Task 6 persistence test requirement. Demonstrates stopping and restarting the Microsoft SQL Server container preserves database state via the named Docker volume `vc-db-data`.*
-
----
-
-### Screenshot 8: Deliberate Outage & Safe Recovery Demonstration (Task 6)
-![Failure Recovery Demonstration](../screenshots/08_failure_recovery.png)
-*Fulfills the Task 6 resilience requirement. Demonstrates deliberately stopping the database container to simulate an infrastructure outage, observing application decoupling, and restarting the service to demonstrate automatic system recovery.*
 
 ---
 

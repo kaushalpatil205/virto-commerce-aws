@@ -255,5 +255,5 @@
 * ✅ **Platform & Storefront:** Running, healthy, and communicating over internal Docker network.
 * ✅ **AWS Infrastructure:** S3 bucket, SQS queue, and IAM policies provisioned on Floci via Terraform.
 * ✅ **Resilience Tested:** Relational database persistence and safe outage recovery verified.
-* ✅ **Documentation & Proof:** Complete deployment runbook, 8 verified deployment screenshots, and formal technical submission PDF report (`Virto_Commerce_AWS_Technical_Submission_Report.pdf`).
+* ✅ **Documentation & Proof:** Complete deployment runbook, 10 verified deployment screenshots, and formal technical submission PDF report (`Virto_Commerce_AWS_Technical_Submission_Report.pdf`).
 * ✅ **Live Repository:** [https://github.com/kaushalpatil205/virto-commerce-aws](https://github.com/kaushalpatil205/virto-commerce-aws)

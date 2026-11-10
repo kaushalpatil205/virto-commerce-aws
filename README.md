@@ -4,6 +4,7 @@
 * **GitHub Repository:** [https://github.com/kaushalpatil205/virto-commerce-aws](https://github.com/kaushalpatil205/virto-commerce-aws)
 * **Technical Submission PDF Report:** [`Virto_Commerce_AWS_Technical_Submission_Report.pdf`](Virto_Commerce_AWS_Technical_Submission_Report.pdf)
 * **Comprehensive Defense Document:** [`docs/submission.md`](docs/submission.md)
+* **Archived Evaluation Evidence:** [`old_screenshots/`](old_screenshots/)
 
 ---
 
@@ -33,12 +34,10 @@
    - [Task 4: Infrastructure as Code (Terraform) & Deployment Automation](#task-4-infrastructure-as-code-terraform--deployment-automation)
    - [Task 5: Ubuntu Documentation (Host Environment, Prerequisites & Security)](#task-5-ubuntu-documentation-host-environment-prerequisites--security)
    - [Task 6: Testing, Data Persistence & Fault Tolerance](#task-6-testing-data-persistence--fault-tolerance)
-6. [Infrastructure as Code (IaC) — Full Terraform Source Code](#6-infrastructure-as-code-iac--full-terraform-source-code)
-7. [Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow](#7-continuous-integration--deployment-cicd--github-actions-workflow)
-8. [Resilience, Data Persistence & Fault Tolerance Test](#8-resilience-data-persistence--fault-tolerance-test)
-9. [Real-World Troubleshooting & Engineering Solutions](#9-real-world-troubleshooting--engineering-solutions)
-10. [Complete Teardown & Environment Cleanup Commands](#10-complete-teardown--environment-cleanup-commands)
-11. [Official Technical References](#11-official-technical-references)
+6. [Resilience, Data Persistence & Fault Tolerance Test](#6-resilience-data-persistence--fault-tolerance-test)
+7. [Real-World Troubleshooting & Engineering Solutions](#7-real-world-troubleshooting--engineering-solutions)
+8. [Complete Teardown & Environment Cleanup Commands](#8-complete-teardown--environment-cleanup-commands)
+9. [Official Technical References](#9-official-technical-references)
 
 ---
 
@@ -388,51 +387,69 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 ## 4. Visual Verification
 
-### Screenshot 1: Floci AWS Emulator & Web Console Running
-![Floci Running](screenshots/01_floci_running.png)
-*Demonstrates the Floci AWS emulator active on port `4566` with its web console dashboard on port `4500`.*
-
----
-
-### Screenshot 2: Docker Containers Overview (`docker compose ps`)
-![Containers Running](screenshots/02_docker_containers.png)
+### Milestone 1: Docker Containers Overview (`docker compose ps`)
+![Containers Running](screenshots/1%20%E2%80%94%20Containers%20Running.png)
 *Confirms all 4 core containers running healthy: `vc-floci` (port 4566/4500), `vc-database` (port 1433), `vc-platform-backend` (port 8081), and `vc-storefront-frontend` (port 8090).*
 
 ---
 
-### Screenshot 3: Virto Commerce Platform API & Admin Portal
-![Platform Admin Dashboard](screenshots/03_virto_platform.png)
+### Milestone 2A: Authentic Virto Commerce Password Reset Prompt
+![Password Reset Screen](screenshots/2A%20%E2%80%94%20Password%20Reset%20Screen.png)
+*Demonstrates the official ASP.NET Identity password reset flow on `http://localhost:8081`. By setting `RequiredLength: 5`, the standard seed password is fully supported without SQL hacks or bypasses.*
+
+---
+
+### Milestone 2B: Platform Admin Management Dashboard
+![Platform Admin Dashboard](screenshots/2B%20%E2%80%94%20Platform%20Admin%20Dashboard.png)
 *Shows the live administration console on port 8081 after completing the password reset. Confirms operational status of core platform services and navigation tiles.*
 
 ---
 
-### Screenshot 4: Virto Commerce Modern Storefront Homepage & Catalog
-![Storefront Homepage](screenshots/04_virto_storefront.png)
+### Milestone 2C: Platform Admin Active Modules Overview
+![Platform Admin Modules](screenshots/2B%20%E2%80%94%20Platform%20Admin%20Modules.png)
+*Validates pre-loaded modules in Platform Admin, confirming `VirtoCommerce.XFrontend` (v3.1009.0), `VirtoCommerce.WhiteLabeling`, and `VirtoCommerce.ImageTools` are registered and active.*
+
+---
+
+### Milestone 3: Official Sample Data Installation (SQL Server Verified)
+![Sample Data Installed](screenshots/3%20%E2%80%94%20Sample%20Data%20Installed.png)
+*Terminal output of `scripts/install-sample-data.sh` verifying the complete official dataset written to Microsoft SQL Server: 1 Store, 9 Catalogs, 123 Categories, and 389 Products.*
+
+---
+
+### Milestone 5: Modern Decoupled B2B Storefront Homepage (Port 8090)
+![Storefront Homepage](screenshots/5%20%E2%80%94%20Storefront%20Homepage.png)
 *Live customer storefront showing top navigation bar with **All products**, **Bolts**, Snacks, Soft Drinks, search bar, interactive shopping cart, and regional currency selector.*
 
 ---
 
-### Screenshot 5: Terraform Infrastructure Provisioning Output
-![Terraform Apply Output](screenshots/05_terraform_apply.png)
+### Milestone 6: All Products MegaMenu Navigation
+![All Products MegaMenu](screenshots/6%20%E2%80%94%20All%20Products%20MegaMenu.png)
+*Expanded MegaMenu dropdown showing real-time GraphQL hierarchy navigation across all imported categories without template crashes.*
+
+---
+
+### Milestone 7: Bolts Category View (`/bolts`)
+![Bolts Category](screenshots/7%20%E2%80%94%20Bolts%20Category.png)
+*Shows 34 products in the Bolts category, dynamic subcategory filtering (Carriage Bolts, Eyebolts, Flange Bolts), FABORY brand items, pricing, and stock status indicators.*
+
+---
+
+### Milestone 8: Complete Full B2B Product Catalog (`/catalog`)
+![Full B2B Catalog](screenshots/8%20%E2%80%94%20Full%20B2B%20Catalog.png)
+*Catalog grid displaying 139 B2B items, price facet filtering, brand sorting, and pagination controls powered by Lucene Search and GraphQL.*
+
+---
+
+### Milestone 9: Terraform Infrastructure Provisioning Output
+![Terraform Apply Output](screenshots/9%20%E2%80%94%20Terraform%20Apply%20Output.png)
 *Terminal showing HashiCorp Terraform apply completing with `Resources: 5 added, 0 changed, 0 destroyed` against the local Floci emulator endpoint (`http://localhost:4566`).*
 
 ---
 
-### Screenshot 6: AWS CLI Verification on Floci
-![AWS CLI S3 and SQS Verification](screenshots/06_s3_sqs_verification.png)
+### Milestone 10: Floci AWS CLI S3 & SQS Verification
+![Floci AWS S3 and SQS Verification](screenshots/10%20%E2%80%94%20Floci%20AWS%20S3%20%26%20SQS%20Verification.png)
 *Standard AWS CLI v2 listing active S3 bucket `virto-commerce-media-assets` and SQS queue URL `virto-order-processing-queue` on Floci endpoint (`http://localhost:4566`).*
-
----
-
-### Screenshot 7: Database Data Persistence Test (Task 6)
-![Data Persistence Test](screenshots/07_persistence_test.png)
-*Fulfills the Task 6 persistence test requirement. Demonstrates stopping and restarting the Microsoft SQL Server container preserves database state via the named Docker volume `vc-db-data`.*
-
----
-
-### Screenshot 8: Deliberate Outage & Safe Recovery Demonstration (Task 6)
-![Failure Recovery Demonstration](screenshots/08_failure_recovery.png)
-*Fulfills the Task 6 resilience requirement. Demonstrates deliberately stopping the database container to simulate an infrastructure outage, observing application decoupling, and restarting the service to demonstrate automatic system recovery.*
 
 ---
 
@@ -483,7 +500,7 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 ### Task 4: Infrastructure as Code (Terraform) & Deployment Automation
 * **How Completed:**  
-  Authored declarative, idempotent Terraform configurations targeting Floci: `terraform/main.tf`, `variables.tf`, and `outputs.tf`. Declared S3 bucket (`virto-commerce-media-assets`, `force_destroy = true`), SQS queue (`virto-order-processing-queue`), and IAM role (`virto-commerce-platform-role`). Authored automated deployment and cleanup scripts for both platforms, and configured GitHub Actions CI/CD pipeline in `.github/workflows/deploy.yml`.
+  Authored declarative, idempotent Terraform configurations targeting Floci: [`terraform/main.tf`](terraform/main.tf), [`terraform/variables.tf`](terraform/variables.tf), and [`terraform/outputs.tf`](terraform/outputs.tf). Declared S3 bucket (`virto-commerce-media-assets`, `force_destroy = true`), SQS queue (`virto-order-processing-queue`), and IAM role (`virto-commerce-platform-role`). Authored automated deployment and cleanup scripts for both platforms, and configured GitHub Actions CI/CD pipeline in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 * **Execution & Verification:**  
   * **Ubuntu / Linux (Bash):**  
     ```bash
@@ -567,224 +584,7 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 ---
 
-## 6. Infrastructure as Code (IaC) — Full Terraform Source Code
-
-### 6.1 `terraform/main.tf`
-```hcl
-terraform {
-  required_version = ">= 1.5.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region                      = var.aws_region
-  access_key                  = "test"
-  secret_key                  = "test"
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
-  s3_use_path_style           = true
-
-  endpoints {
-    s3       = var.floci_endpoint
-    sqs      = var.floci_endpoint
-    iam      = var.floci_endpoint
-    dynamodb = var.floci_endpoint
-  }
-}
-
-# 1. S3 Bucket for Virto Commerce Media & Catalog Assets
-resource "aws_s3_bucket" "media_assets" {
-  bucket        = var.media_bucket_name
-  force_destroy = true
-
-  tags = {
-    Environment = "Local-Floci"
-    Project     = "VirtoCommerce"
-    ManagedBy   = "Terraform"
-  }
-}
-
-# 2. SQS Queue for Asynchronous Order & Event Processing
-resource "aws_sqs_queue" "order_queue" {
-  name                      = var.order_queue_name
-  delay_seconds             = 0
-  max_message_size          = 262144
-  message_retention_seconds = 86400
-  receive_wait_time_seconds = 10
-
-  tags = {
-    Environment = "Local-Floci"
-    Project     = "VirtoCommerce"
-  }
-}
-
-# 3. IAM Role for Virto Platform Service
-resource "aws_iam_role" "platform_role" {
-  name = "virto-commerce-platform-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# 4. IAM Policy for S3 Media Bucket Access
-resource "aws_iam_policy" "s3_access_policy" {
-  name        = "virto-commerce-s3-access-policy"
-  description = "Allows Virto Commerce Platform to read and write to the catalog media bucket"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:ListBucket"
-        ]
-        Resource = [
-          aws_s3_bucket.media_assets.arn,
-          "${aws_s3_bucket.media_assets.arn}/*"
-        ]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "platform_attach" {
-  role       = aws_iam_role.platform_role.name
-  policy_arn = aws_iam_policy.s3_access_policy.arn
-}
-```
-
-### 6.2 `terraform/variables.tf`
-```hcl
-variable "aws_region" {
-  type        = string
-  default     = "us-east-1"
-  description = "AWS region for deployment"
-}
-
-variable "floci_endpoint" {
-  type        = string
-  default     = "http://localhost:4566"
-  description = "Local Floci AWS emulator endpoint"
-}
-
-variable "media_bucket_name" {
-  type        = string
-  default     = "virto-commerce-media-assets"
-  description = "Name of the S3 bucket for media and catalog uploads"
-}
-
-variable "order_queue_name" {
-  type        = string
-  default     = "virto-order-processing-queue"
-  description = "Name of the SQS queue for order integration"
-}
-```
-
-### 6.3 `terraform/outputs.tf`
-```hcl
-output "s3_bucket_name" {
-  value       = aws_s3_bucket.media_assets.bucket
-  description = "Created S3 Media Bucket name"
-}
-
-output "s3_bucket_arn" {
-  value       = aws_s3_bucket.media_assets.arn
-  description = "Created S3 Media Bucket ARN"
-}
-
-output "sqs_queue_url" {
-  value       = aws_sqs_queue.order_queue.url
-  description = "Created SQS Queue URL"
-}
-
-output "iam_role_arn" {
-  value       = aws_iam_role.platform_role.arn
-  description = "Created IAM Role ARN"
-}
-```
-
----
-
-## 7. Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow
-
-```yaml
-name: Virto Commerce CI/CD Pipeline
-
-on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-
-jobs:
-  validate-and-test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Compose
-        run: |
-          docker compose config
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.7.0
-
-      - name: Terraform Format & Validate
-        run: |
-          cd terraform
-          terraform fmt -check
-          terraform init -backend=false
-          terraform validate
-
-      - name: Start Floci AWS Emulator
-        run: |
-          docker run -d --rm -p 4566:4566 --name floci-ci floci/floci:latest
-          sleep 5
-          curl -f http://localhost:4566 || exit 1
-
-      - name: Apply Terraform to Floci in CI
-        run: |
-          cd terraform
-          terraform init
-          terraform apply -auto-approve
-
-      - name: Test AWS CLI against Floci
-        run: |
-          export AWS_ENDPOINT_URL=http://localhost:4566
-          export AWS_ACCESS_KEY_ID=test
-          export AWS_SECRET_ACCESS_KEY=test
-          export AWS_DEFAULT_REGION=us-east-1
-          aws s3 ls
-          aws sqs list-queues
-```
-
----
-
-## 8. Resilience, Data Persistence & Fault Tolerance Test
+## 6. Resilience, Data Persistence & Fault Tolerance Test
 
 1. **Persistence Across Container Restart:**
    ```bash
@@ -803,7 +603,7 @@ jobs:
 
 ---
 
-## 9. Real-World Troubleshooting & Engineering Solutions
+## 7. Real-World Troubleshooting & Engineering Solutions
 
 1. **ASP.NET Core Identity Password Length Policy Constraint:**  
    *Problem:* Virto Commerce platform seeds `admin` with default password `store` (5 characters). However, `appsettings.json` enforces ASP.NET Core Identity's default: `"RequiredLength": 8`. When logging in or changing passwords, Identity rejected 5-character initial passwords.  
@@ -823,7 +623,7 @@ jobs:
 
 ---
 
-## 10. Complete Teardown & Environment Cleanup Commands
+## 8. Complete Teardown & Environment Cleanup Commands
 
 ```bash
 # macOS / Linux (Bash)
@@ -849,7 +649,7 @@ docker compose down -v --remove-orphans
 
 ---
 
-## 11. Official Technical References
+## 9. Official Technical References
 
 1. **Virto Commerce Platform 3 Architecture:** [https://docs.virtocommerce.org/](https://docs.virtocommerce.org/)
 2. **Virto Commerce Modern B2B Theme (Vue 3, Vite, Apollo):** [https://github.com/VirtoCommerce/vc-theme-b2b-vue](https://github.com/VirtoCommerce/vc-theme-b2b-vue)
