@@ -117,7 +117,6 @@
   * Default Admin Credentials: Username: `admin` | Password: `store`.
   * Confirms backend API is up and Entity Framework database migrations successfully seeded 40+ database tables.
 * **2. Virto Commerce Storefront (`http://localhost:8090`):**
-  * Accessible via web browser through unified NGINX API Gateway.
   * Official modern Vue 3 Single Page Application (`vc-frontend`) connecting to backend GraphQL API.
   * Live interactive catalog with categories (Bolts, Soft Drinks, Snacks), dynamic pricing, and shopping cart.
 * **2.1. Backend Experience Modules & GraphQL APIs (`http://localhost:8081/#!/modules`):**
@@ -147,23 +146,28 @@
 
 ---
 
-## 9. Real-World Engineering Troubleshooting
+## 9. Architecture Implementation & Bug Resolution Walkthrough
 
-* **Issue 1: Host Port 8080 Contention**
-  * *Root Cause:* Pre-existing `floci-lab` container was already bound to host port 8080.
-  * *Resolution:* Re-mapped `vc-platform` to host port `8081:80` in `docker-compose.yml`.
-* **Issue 2: Inter-Container DNS Routing Mismatch**
-  * *Root Cause:* Storefront failed with `HttpRequestException: Name or service not known (vc-platform:80)` due to naming differences between service name and container name.
-  * *Resolution:* Added network aliases in Docker Compose (`vc-platform`, `vc-platform-backend`) ensuring resolution across all formats.
-* **Issue 3: Storefront Modern Headless Architecture Migration**
-  * *Root Cause:* Legacy server-rendered Liquid Storefront container crashed against modern Platform 3 APIs and required external template compilation.
-  * *Resolution:* Modernized to official Virto Commerce Vue 3 B2B SPA (`vc-frontend`) using GraphQL Experience API modules (`XFrontend`, `WhiteLabeling`, `ImageTools`, `ProfileExperienceApi`) fronted by an NGINX API Gateway on port 8090.
-* **Issue 4: AWS CLI `NoCredentials` Error**
-  * *Root Cause:* AWS CLI v2 requires non-empty credential strings to construct authorization headers, even on mock emulators.
-  * *Resolution:* Configured dummy credentials via `aws configure set aws_access_key_id test`.
-* **Issue 5: Floci Web Console `SocketException`**
-  * *Root Cause:* Floci UI runs as an on-demand child container requiring host Docker daemon communication.
-  * *Resolution:* Mounted the host engine socket/named pipe into the Floci container.
+* **How We Implemented the Architecture:**
+  * **Headless Decoupling:** Deployed the modern Vue 3 Single Page Application (`vc-theme-b2b-vue` v2.61.0) with Vite and Apollo GraphQL Client, completely decoupled from the ASP.NET Core platform engine.
+  * **Native URL Rewriting (`IISUrlRewrite.xml`):** Configured ASP.NET Core URL rewrite middleware in the Storefront container to internally proxy `^graphql` requests to `http://vc-platform:80/x-api/graphql`, removing the need for an external NGINX reverse-proxy container.
+  * **Deterministic Offline Startup:** Pre-installed and mounted 8 core modules in `./modules` (`VirtoCommerce.XFrontend`, `Catalog`, `Store`, `Pricing`, `WhiteLabeling`, `ImageTools`), bypassing GitHub API rate limits (60 req/hr) and ensuring instantaneous startup.
+  * **Automated Data Streaming:** Created `scripts/install-sample-data.sh` calling `/api/platform/sampledata/autoinstall` to stream the official 59.5 MB compressed catalog dataset into SQL Server with active progress polling.
+  * **Declarative Cloud Emulation:** Used Floci on port 4566 to emulate AWS S3, SQS, and IAM locally, provisioned via 100% idempotent HashiCorp Terraform declarations.
+
+* **How We Solved Critical Production Bugs:**
+  * **Bug 1: ASP.NET Core Identity Password Policy Rejection (`RequiredLength: 5`)**
+    * *Symptom:* Default seed password `store` (5 characters) was rejected by ASP.NET Core Identity, preventing initial admin login and password reset.
+    * *Fix:* Modified `"RequiredLength": 5` in `/opt/virtocommerce/platform/appsettings.json` via stream editor and restarted the platform container.
+  * **Bug 2: SQL Server `Msg 1934: QUOTED_IDENTIFIER ON` on `AspNetUsers`**
+    * *Symptom:* Direct SQL updates on `AspNetUsers` threw `Msg 1934: UPDATE failed because the following SET options have forbidden settings: 'QUOTED_IDENTIFIER'`.
+    * *Fix:* Added `SET QUOTED_IDENTIFIER ON;` preceding all SQL update statements for tables with filtered indexes.
+  * **Bug 3: Storefront Route Guard Infinite Redirect Loop (`/change-password?returnUrl=/`)**
+    * *Symptom:* Navigating to `http://localhost:8090` was repeatedly intercepted by the Vue 3 router guard and redirected to `/change-password`.
+    * *Fix:* Identified that demo sample data seeds `PasswordExpired = 1`. Automated SQL query in `install-sample-data.sh`: `UPDATE AspNetUsers SET PasswordExpired = 0 WHERE UserName = 'admin';`.
+  * **Bug 4: Floci Web Console Port 4500 Bind Collision**
+    * *Symptom:* Accessing `http://localhost:4566/_floci/ui` failed with HTTP 500: `driver failed programming external connectivity on endpoint floci-aws-ui: Bind for 0.0.0.0:4500 failed: port is already allocated`.
+    * *Fix:* Removed static port mapping `4500:4500` from parent service `vc-floci` in `docker-compose.yml`, leaving host port 4500 unallocated for Floci's on-demand child container (`floci/floci-ui:0.7.0`).
 
 ---
 
@@ -251,5 +255,5 @@
 * ✅ **Platform & Storefront:** Running, healthy, and communicating over internal Docker network.
 * ✅ **AWS Infrastructure:** S3 bucket, SQS queue, and IAM policies provisioned on Floci via Terraform.
 * ✅ **Resilience Tested:** Relational database persistence and safe outage recovery verified.
-* ✅ **Documentation & Proof:** 16-point README runbook, 11 verified milestone screenshots, and formal technical submission PDF report (`Virto_Commerce_AWS_Technical_Submission_Report.pdf`).
+* ✅ **Documentation & Proof:** Complete deployment runbook, 8 verified deployment screenshots, and formal technical submission PDF report (`Virto_Commerce_AWS_Technical_Submission_Report.pdf`).
 * ✅ **Live Repository:** [https://github.com/kaushalpatil205/virto-commerce-aws](https://github.com/kaushalpatil205/virto-commerce-aws)

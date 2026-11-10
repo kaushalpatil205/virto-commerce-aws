@@ -25,13 +25,20 @@
    - [Step 5: Obtain API Token & Trigger Search Index Rebuild](#step-5-obtain-api-token--trigger-search-index-rebuild)
    - [Step 6: Provision AWS Infrastructure via Terraform](#step-6-provision-aws-infrastructure-via-terraform)
    - [Step 7: Verify AWS Resources on Floci via AWS CLI](#step-7-verify-aws-resources-on-floci-via-aws-cli)
-4. [Visual Verification: Complete Deployment Proof (All 11 Milestones)](#4-visual-verification-complete-deployment-proof-all-11-milestones)
-5. [Infrastructure as Code (IaC) — Full Terraform Source Code](#5-infrastructure-as-code-iac--full-terraform-source-code)
-6. [Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow](#6-continuous-integration--deployment-cicd--github-actions-workflow)
-7. [Resilience, Data Persistence & Fault Tolerance Test](#7-resilience-data-persistence--fault-tolerance-test)
-8. [Real-World Troubleshooting & Engineering Solutions](#8-real-world-troubleshooting--engineering-solutions)
-9. [Complete Teardown & Environment Cleanup Commands](#9-complete-teardown--environment-cleanup-commands)
-10. [Official Technical References](#10-official-technical-references)
+4. [Visual Verification](#4-visual-verification)
+5. [Completed Tasks & Implementation Summary (Tasks 1 to 6)](#5-completed-tasks--implementation-summary-tasks-1-to-6)
+   - [Task 1: System Research & Architecture Design](#task-1-system-research--architecture-design)
+   - [Task 2: Local Containerized Deployment (Docker Compose)](#task-2-local-containerized-deployment-docker-compose)
+   - [Task 3: AWS Cloud Resource Emulation (Floci)](#task-3-aws-cloud-resource-emulation-floci)
+   - [Task 4: Infrastructure as Code (Terraform) & Deployment Automation](#task-4-infrastructure-as-code-terraform--deployment-automation)
+   - [Task 5: Ubuntu Documentation (Host Environment, Prerequisites & Security)](#task-5-ubuntu-documentation-host-environment-prerequisites--security)
+   - [Task 6: Testing, Data Persistence & Fault Tolerance](#task-6-testing-data-persistence--fault-tolerance)
+6. [Infrastructure as Code (IaC) — Full Terraform Source Code](#6-infrastructure-as-code-iac--full-terraform-source-code)
+7. [Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow](#7-continuous-integration--deployment-cicd--github-actions-workflow)
+8. [Resilience, Data Persistence & Fault Tolerance Test](#8-resilience-data-persistence--fault-tolerance-test)
+9. [Real-World Troubleshooting & Engineering Solutions](#9-real-world-troubleshooting--engineering-solutions)
+10. [Complete Teardown & Environment Cleanup Commands](#10-complete-teardown--environment-cleanup-commands)
+11. [Official Technical References](#11-official-technical-references)
 
 ---
 
@@ -379,77 +386,190 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 ---
 
-## 4. Visual Verification: Complete Deployment Proof (All 11 Milestones)
+## 4. Visual Verification
 
-### Screenshot 1: Docker Containers Overview (`docker compose ps`)
-![Containers Running](screenshots/01_containers_running.png)
+### Screenshot 1: Floci AWS Emulator & Web Console Running
+![Floci Running](screenshots/01_floci_running.png)
+*Demonstrates the Floci AWS emulator active on port `4566` with its web console dashboard on port `4500`.*
+
+---
+
+### Screenshot 2: Docker Containers Overview (`docker compose ps`)
+![Containers Running](screenshots/02_docker_containers.png)
 *Confirms all 4 core containers running healthy: `vc-floci` (port 4566/4500), `vc-database` (port 1433), `vc-platform-backend` (port 8081), and `vc-storefront-frontend` (port 8090).*
 
 ---
 
-### Screenshot 2A: Authentic Virto Commerce Password Reset Prompt
-![Password Reset Screen](screenshots/02a_password_reset_screen.png)
-*Demonstrates the official ASP.NET Identity password reset flow on `http://localhost:8081`. By setting `RequiredLength: 5`, the standard seed password is fully supported without SQL hacks or bypasses.*
-
----
-
-### Screenshot 2B: Platform Admin Management Dashboard
-![Platform Admin Dashboard](screenshots/02b_platform_admin_dashboard.png)
+### Screenshot 3: Virto Commerce Platform API & Admin Portal
+![Platform Admin Dashboard](screenshots/03_virto_platform.png)
 *Shows the live administration console on port 8081 after completing the password reset. Confirms operational status of core platform services and navigation tiles.*
 
 ---
 
-### Screenshot 2C: Platform Admin Active Modules Overview
-![Platform Admin Modules](screenshots/02c_platform_admin_modules.png)
-*Validates pre-loaded modules in Platform Admin, confirming `VirtoCommerce.XFrontend` (v3.1009.0), `VirtoCommerce.WhiteLabeling`, and `VirtoCommerce.ImageTools` are registered and active.*
-
----
-
-### Screenshot 3: Official Sample Data Installation (SQL Server Verified)
-![Sample Data Installed](screenshots/03_sample_data_installed.png)
-*Terminal output of `scripts/install-sample-data.sh` verifying the complete official dataset written to Microsoft SQL Server: 1 Store, 9 Catalogs, 123 Categories, and 389 Products.*
-
----
-
-### Screenshot 5: Modern Decoupled B2B Storefront Homepage (Port 8090)
-![Storefront Homepage](screenshots/05_storefront_homepage.png)
+### Screenshot 4: Virto Commerce Modern Storefront Homepage & Catalog
+![Storefront Homepage](screenshots/04_virto_storefront.png)
 *Live customer storefront showing top navigation bar with **All products**, **Bolts**, Snacks, Soft Drinks, search bar, interactive shopping cart, and regional currency selector.*
 
 ---
 
-### Screenshot 6: All Products MegaMenu Navigation
-![All Products MegaMenu](screenshots/06_all_products_megamenu.png)
-*Expanded MegaMenu dropdown showing real-time GraphQL hierarchy navigation across all imported categories without template crashes.*
-
----
-
-### Screenshot 7: Bolts Category View (`/bolts`)
-![Bolts Category](screenshots/07_bolts_category.png)
-*Shows 34 products in the Bolts category, dynamic subcategory filtering (Carriage Bolts, Eyebolts, Flange Bolts), FABORY brand items, pricing, and stock status indicators.*
-
----
-
-### Screenshot 8: Complete Full B2B Product Catalog (`/catalog`)
-![Full B2B Catalog](screenshots/08_full_b2b_catalog.png)
-*Catalog grid displaying 139 B2B items, price facet filtering, brand sorting, and pagination controls powered by Lucene Search and GraphQL.*
-
----
-
-### Screenshot 9: Terraform Infrastructure Provisioning Output
-![Terraform Apply Output](screenshots/09_terraform_apply_output.png)
+### Screenshot 5: Terraform Infrastructure Provisioning Output
+![Terraform Apply Output](screenshots/05_terraform_apply.png)
 *Terminal showing HashiCorp Terraform apply completing with `Resources: 5 added, 0 changed, 0 destroyed` against the local Floci emulator endpoint (`http://localhost:4566`).*
 
 ---
 
-### Screenshot 10: Floci AWS CLI S3 & SQS Verification
-![Floci AWS S3 and SQS Verification](screenshots/10_floci_aws_s3_sqs_verification.png)
+### Screenshot 6: AWS CLI Verification on Floci
+![AWS CLI S3 and SQS Verification](screenshots/06_s3_sqs_verification.png)
 *Standard AWS CLI v2 listing active S3 bucket `virto-commerce-media-assets` and SQS queue URL `virto-order-processing-queue` on Floci endpoint (`http://localhost:4566`).*
 
 ---
 
-## 5. Infrastructure as Code (IaC) — Full Terraform Source Code
+### Screenshot 7: Database Data Persistence Test (Task 6)
+![Data Persistence Test](screenshots/07_persistence_test.png)
+*Fulfills the Task 6 persistence test requirement. Demonstrates stopping and restarting the Microsoft SQL Server container preserves database state via the named Docker volume `vc-db-data`.*
 
-### 5.1 `terraform/main.tf`
+---
+
+### Screenshot 8: Deliberate Outage & Safe Recovery Demonstration (Task 6)
+![Failure Recovery Demonstration](screenshots/08_failure_recovery.png)
+*Fulfills the Task 6 resilience requirement. Demonstrates deliberately stopping the database container to simulate an infrastructure outage, observing application decoupling, and restarting the service to demonstrate automatic system recovery.*
+
+---
+
+## 5. Completed Tasks & Implementation Summary (Tasks 1 to 6)
+
+### Task 1: System Research & Architecture Design
+* **How Completed:**  
+  Analyzed Virto Commerce modular architecture, separating the core backend platform from the presentation tier. Designed dual topology diagrams: local containerized infrastructure on Docker bridge network `virto-network` and target AWS production cloud architecture (Multi-AZ ECS Fargate, RDS SQL Server, S3, SQS, Application Load Balancer). Documented service contracts and port mapping (`:8081`, `:8090`, `:1433`, `:4566`, `:4500`) in `docs/architecture.md`.
+* **Execution & Verification:**  
+  * **Ubuntu / Linux (Bash):** `cat docs/architecture.md`  
+  * **Windows (PowerShell):** `Get-Content docs\architecture.md`
+
+---
+
+### Task 2: Local Containerized Deployment (Docker Compose)
+* **How Completed:**  
+  Configured `docker-compose.yml` orchestrating 4 services (`vc-floci`, `vc-database`, `vc-platform-backend`, `vc-storefront-frontend`). Added database healthchecks (`sqlcmd -Q 'SELECT 1'`), service dependencies (`depends_on: vc-db: condition: service_healthy`), named persistent volumes (`vc-db-data`, `vc-platform-data`), and bridge networking.
+* **Execution & Verification:**  
+  * **Ubuntu / Linux (Bash):**  
+    ```bash
+    docker compose up -d
+    docker compose ps
+    ```
+  * **Windows (PowerShell):**  
+    ```powershell
+    docker compose up -d
+    docker compose ps
+    ```
+
+---
+
+### Task 3: AWS Cloud Resource Emulation (Floci)
+* **How Completed:**  
+  Integrated the Floci AWS emulator (`floci/floci:latest`) on port `4566` with the host Docker daemon socket mounted (`/var/run/docker.sock`). Left host port 4500 free on the parent container so Floci's on-demand child container (`floci/floci-ui:0.7.0`) can bind port 4500 without conflict for web console access. Emulated Amazon S3 for catalog media, Amazon SQS for order event queues, and IAM execution roles.
+* **Execution & Verification:**  
+  * **Ubuntu / Linux (Bash):**  
+    ```bash
+    aws --endpoint-url=http://localhost:4566 s3 ls
+    aws --endpoint-url=http://localhost:4566 sqs list-queues
+    ```
+  * **Windows (PowerShell):**  
+    ```powershell
+    aws --endpoint-url=http://localhost:4566 s3 ls
+    aws --endpoint-url=http://localhost:4566 sqs list-queues
+    ```
+
+---
+
+### Task 4: Infrastructure as Code (Terraform) & Deployment Automation
+* **How Completed:**  
+  Authored declarative, idempotent Terraform configurations targeting Floci: `terraform/main.tf`, `variables.tf`, and `outputs.tf`. Declared S3 bucket (`virto-commerce-media-assets`, `force_destroy = true`), SQS queue (`virto-order-processing-queue`), and IAM role (`virto-commerce-platform-role`). Authored automated deployment and cleanup scripts for both platforms, and configured GitHub Actions CI/CD pipeline in `.github/workflows/deploy.yml`.
+* **Execution & Verification:**  
+  * **Ubuntu / Linux (Bash):**  
+    ```bash
+    cd terraform && terraform init && terraform apply -auto-approve && cd ..
+    ./scripts/deploy.sh
+    ```
+  * **Windows (PowerShell):**  
+    ```powershell
+    Set-Location terraform; terraform init; terraform apply -auto-approve; Set-Location ..
+    .\scripts\deploy.ps1
+    ```
+
+---
+
+### Task 5: Ubuntu Documentation (Host Environment, Prerequisites & Security)
+* **How Completed (Ubuntu Linux Specific):**  
+  Documented native Ubuntu installation, host prerequisites, user permissions, and security boundaries:
+  1. **Package Installation on Ubuntu 22.04 / 24.04 LTS:**
+     ```bash
+     sudo apt-get update
+     sudo apt-get install -y ca-certificates curl gnupg lsb-release
+     # Install Docker Engine & Compose Plugin
+     sudo install -m 0755 -d /etc/apt/keyrings
+     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+     sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+     # Install Terraform & AWS CLI
+     sudo apt-get install -y terraform awscli
+     ```
+  2. **Non-Root Docker Permissions:**
+     ```bash
+     sudo usermod -aG docker $USER
+     newgrp docker
+     ```
+  3. **Script Executable Permissions:**
+     ```bash
+     chmod +x scripts/*.sh
+     ```
+  4. **Firewall (UFW) Host Port Allocations:**
+     ```bash
+     sudo ufw allow 8081/tcp comment "Virto Platform Backend API"
+     sudo ufw allow 8090/tcp comment "Virto Storefront UI"
+     sudo ufw allow 4566/tcp comment "Floci AWS Gateway"
+     sudo ufw allow 4500/tcp comment "Floci Web Console"
+     sudo ufw allow 1433/tcp comment "Microsoft SQL Server"
+     ```
+  5. **Docker Service Management:**
+     ```bash
+     sudo systemctl enable --now docker
+     sudo systemctl status docker
+     ```
+
+---
+
+### Task 6: Testing, Data Persistence & Fault Tolerance
+* **How Completed:**  
+  Conducted deliberate database persistence tests to verify that container recycling does not corrupt or lose catalog data stored in named volume `vc-db-data`. Executed deliberate simulated outage tests to demonstrate that the application layer survives container termination and automatically re-establishes connection pools once the database container recovers.
+* **Execution & Verification:**  
+  * **Ubuntu / Linux (Bash):**  
+    ```bash
+    # 1. Container Restart Persistence Test
+    docker compose restart vc-db
+    docker compose ps
+    # 2. Simulated Outage & Recovery Test
+    docker compose stop vc-db
+    docker compose ps
+    docker compose start vc-db
+    docker compose ps
+    ```
+  * **Windows (PowerShell):**  
+    ```powershell
+    # 1. Container Restart Persistence Test
+    docker compose restart vc-db
+    docker compose ps
+    # 2. Simulated Outage & Recovery Test
+    docker compose stop vc-db
+    docker compose ps
+    docker compose start vc-db
+    docker compose ps
+    ```
+
+---
+
+## 6. Infrastructure as Code (IaC) — Full Terraform Source Code
+
+### 6.1 `terraform/main.tf`
 ```hcl
 terraform {
   required_version = ">= 1.5.0"
@@ -553,7 +673,7 @@ resource "aws_iam_role_policy_attachment" "platform_attach" {
 }
 ```
 
-### 5.2 `terraform/variables.tf`
+### 6.2 `terraform/variables.tf`
 ```hcl
 variable "aws_region" {
   type        = string
@@ -580,7 +700,7 @@ variable "order_queue_name" {
 }
 ```
 
-### 5.3 `terraform/outputs.tf`
+### 6.3 `terraform/outputs.tf`
 ```hcl
 output "s3_bucket_name" {
   value       = aws_s3_bucket.media_assets.bucket
@@ -605,7 +725,7 @@ output "iam_role_arn" {
 
 ---
 
-## 6. Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow
+## 7. Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow
 
 ```yaml
 name: Virto Commerce CI/CD Pipeline
@@ -664,7 +784,7 @@ jobs:
 
 ---
 
-## 7. Resilience, Data Persistence & Fault Tolerance Test
+## 8. Resilience, Data Persistence & Fault Tolerance Test
 
 1. **Persistence Across Container Restart:**
    ```bash
@@ -683,7 +803,7 @@ jobs:
 
 ---
 
-## 8. Real-World Troubleshooting & Engineering Solutions
+## 9. Real-World Troubleshooting & Engineering Solutions
 
 1. **ASP.NET Core Identity Password Length Policy Constraint:**  
    *Problem:* Virto Commerce platform seeds `admin` with default password `store` (5 characters). However, `appsettings.json` enforces ASP.NET Core Identity's default: `"RequiredLength": 8`. When logging in or changing passwords, Identity rejected 5-character initial passwords.  
@@ -703,7 +823,7 @@ jobs:
 
 ---
 
-## 9. Complete Teardown & Environment Cleanup Commands
+## 10. Complete Teardown & Environment Cleanup Commands
 
 ```bash
 # macOS / Linux (Bash)
@@ -729,7 +849,7 @@ docker compose down -v --remove-orphans
 
 ---
 
-## 10. Official Technical References
+## 11. Official Technical References
 
 1. **Virto Commerce Platform 3 Architecture:** [https://docs.virtocommerce.org/](https://docs.virtocommerce.org/)
 2. **Virto Commerce Modern B2B Theme (Vue 3, Vite, Apollo):** [https://github.com/VirtoCommerce/vc-theme-b2b-vue](https://github.com/VirtoCommerce/vc-theme-b2b-vue)
