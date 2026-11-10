@@ -214,10 +214,7 @@ html_content = f"""<!DOCTYPE html>
   <h2>Revised Submission for Virto Commerce Platform</h2>
   <div class="meta-box">
     <p><strong>Submission by:</strong> Kaushal Patil</p>
-    <p><strong>Platform:</strong> Virto Commerce 3.x (Headless Vue 3 B2B Storefront Architecture)</p>
-    <p><strong>Cloud Emulation:</strong> Floci AWS Local Cloud Emulator (S3, SQS, IAM)</p>
-    <p><strong>IaC Framework:</strong> HashiCorp Terraform AWS Provider</p>
-    <p><strong>Date:</strong> November 2026</p>
+    <p><strong>GitHub Repository:</strong> <a href="https://github.com/kaushalpatil205/virto-commerce-aws" style="color: #2563eb; text-decoration: underline;">https://github.com/kaushalpatil205/virto-commerce-aws</a></p>
   </div>
 </div>
 
