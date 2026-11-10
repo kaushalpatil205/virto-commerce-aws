@@ -335,67 +335,67 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 ## 6. Visual Verification: Complete Deployment Proof (All 11 Milestones)
 
 ### Screenshot 1: Docker Containers Overview (`docker compose ps`)
-![Containers Running](screenshots/1%20%E2%80%94%20Containers%20Running.png)
+![Containers Running](screenshots/01_containers_running.png)
 *Confirms all 4 core containers running healthy: `vc-floci` (port 4566/4500), `vc-database` (port 1433), `vc-platform-backend` (port 8081), and `vc-storefront-frontend` (port 8090).*
 
 ---
 
 ### Screenshot 2A: Authentic Virto Commerce Password Reset Prompt
-![Password Reset Screen](screenshots/2A%20%E2%80%94%20Password%20Reset%20Screen.png)
+![Password Reset Screen](screenshots/02a_password_reset_screen.png)
 *Demonstrates the official ASP.NET Identity password reset flow on `http://localhost:8081`. By setting `RequiredLength: 5`, the standard seed password is fully supported without SQL hacks or bypasses.*
 
 ---
 
 ### Screenshot 2B: Platform Admin Management Dashboard
-![Platform Admin Dashboard](screenshots/2B%20%E2%80%94%20Platform%20Admin%20Dashboard.png)
+![Platform Admin Dashboard](screenshots/02b_platform_admin_dashboard.png)
 *Shows the live administration console on port 8081 after completing the password reset. Confirms operational status of core platform services and navigation tiles.*
 
 ---
 
 ### Screenshot 2C: Platform Admin Active Modules Overview
-![Platform Admin Modules](screenshots/2B%20%E2%80%94%20Platform%20Admin%20Modules.png)
+![Platform Admin Modules](screenshots/02c_platform_admin_modules.png)
 *Validates pre-loaded modules in Platform Admin, confirming `VirtoCommerce.XFrontend` (v3.1009.0), `VirtoCommerce.WhiteLabeling`, and `VirtoCommerce.ImageTools` are registered and active.*
 
 ---
 
 ### Screenshot 3: Official Sample Data Installation (SQL Server Verified)
-![Sample Data Installed](screenshots/3%20%E2%80%94%20Sample%20Data%20Installed.png)
+![Sample Data Installed](screenshots/03_sample_data_installed.png)
 *Terminal output of `scripts/install-sample-data.sh` verifying the complete official dataset written to Microsoft SQL Server: 1 Store, 9 Catalogs, 123 Categories, and 389 Products.*
 
 ---
 
 ### Screenshot 5: Modern Decoupled B2B Storefront Homepage (Port 8090)
-![Storefront Homepage](screenshots/5%20%E2%80%94%20Storefront%20Homepage.png)
+![Storefront Homepage](screenshots/05_storefront_homepage.png)
 *Live customer storefront showing top navigation bar with **All products**, **Bolts**, Snacks, Soft Drinks, search bar, interactive shopping cart, and regional currency selector.*
 
 ---
 
 ### Screenshot 6: All Products MegaMenu Navigation
-![All Products MegaMenu](screenshots/6%20%E2%80%94%20All%20Products%20MegaMenu.png)
+![All Products MegaMenu](screenshots/06_all_products_megamenu.png)
 *Expanded MegaMenu dropdown showing real-time GraphQL hierarchy navigation across all imported categories without template crashes.*
 
 ---
 
 ### Screenshot 7: Bolts Category View (`/bolts`)
-![Bolts Category](screenshots/7%20%E2%80%94%20Bolts%20Category.png)
+![Bolts Category](screenshots/07_bolts_category.png)
 *Shows 34 products in the Bolts category, dynamic subcategory filtering (Carriage Bolts, Eyebolts, Flange Bolts), FABORY brand items, pricing, and stock status indicators.*
 
 ---
 
 ### Screenshot 8: Complete Full B2B Product Catalog (`/catalog`)
-![Full B2B Catalog](screenshots/8%20%E2%80%94%20Full%20B2B%20Catalog.png)
+![Full B2B Catalog](screenshots/08_full_b2b_catalog.png)
 *Catalog grid displaying 139 B2B items, price facet filtering, brand sorting, and pagination controls powered by Lucene Search and GraphQL.*
 
 ---
 
 ### Screenshot 9: Terraform Infrastructure Provisioning Output
-![Terraform Apply Output](screenshots/9%20%E2%80%94%20Terraform%20Apply%20Output.png)
+![Terraform Apply Output](screenshots/09_terraform_apply_output.png)
 *Terminal showing HashiCorp Terraform apply completing with `Resources: 5 added, 0 changed, 0 destroyed` against the local Floci emulator endpoint (`http://localhost:4566`).*
 
 ---
 
 ### Screenshot 10: Floci AWS CLI S3 & SQS Verification
-![Floci AWS S3 and SQS Verification](screenshots/10%20%E2%80%94%20Floci%20AWS%20S3%20%26%20SQS%20Verification.png)
+![Floci AWS S3 and SQS Verification](screenshots/10_floci_aws_s3_sqs_verification.png)
 *Standard AWS CLI v2 listing active S3 bucket `virto-commerce-media-assets` and SQS queue URL `virto-order-processing-queue` on Floci endpoint (`http://localhost:4566`).*
 
 ---
