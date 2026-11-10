@@ -232,7 +232,7 @@
     ```
 * **CI/CD Pipeline (`.github/workflows/deploy.yml`):**
   * Automated validation on every push: validates Compose configuration, checks Terraform formatting, and provisions against Floci in GitHub Actions runners.
-* **Complete Teardown & Deletion Sequence (Evaluator Demo):**
+* **Complete Teardown & Environment Cleanup Sequence:**
   * **Linux / Ubuntu / macOS:**
     ```bash
     cd terraform && terraform destroy -auto-approve && cd ..
@@ -251,5 +251,5 @@
 * ✅ **Platform & Storefront:** Running, healthy, and communicating over internal Docker network.
 * ✅ **AWS Infrastructure:** S3 bucket, SQS queue, and IAM policies provisioned on Floci via Terraform.
 * ✅ **Resilience Tested:** Relational database persistence and safe outage recovery verified.
-* ✅ **Documentation & Proof:** 16-point README runbook, 8 uncropped screenshots, and formal submission PDF generated.
+* ✅ **Documentation & Proof:** 16-point README runbook, 11 verified milestone screenshots, and formal technical submission PDF report (`Virto_Commerce_AWS_Technical_Submission_Report.pdf`).
 * ✅ **Live Repository:** [https://github.com/kaushalpatil205/virto-commerce-aws](https://github.com/kaushalpatil205/virto-commerce-aws)

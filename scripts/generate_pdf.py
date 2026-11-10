@@ -1,10 +1,12 @@
 import os
 import base64
+import html
 import subprocess
 
-SCREENSHOTS_DIR = "/Users/Vraj/Downloads/virto-commerce-aws/screenshots"
-OUTPUT_HTML = "/Users/Vraj/Downloads/virto-commerce-aws/report.html"
-OUTPUT_PDF_REPO = "/Users/Vraj/Downloads/virto-commerce-aws/Virto_Commerce_AWS_Technical_Submission_Report.pdf"
+REPO_DIR = "/Users/Vraj/Downloads/virto-commerce-aws"
+SCREENSHOTS_DIR = os.path.join(REPO_DIR, "screenshots")
+OUTPUT_HTML = os.path.join(REPO_DIR, "report.html")
+OUTPUT_PDF_REPO = os.path.join(REPO_DIR, "Virto_Commerce_AWS_Technical_Submission_Report.pdf")
 OUTPUT_PDF_DOWNLOADS = "/Users/Vraj/Downloads/Virto_Commerce_AWS_Technical_Submission_Report.pdf"
 
 def img_b64(filename):
@@ -13,6 +15,13 @@ def img_b64(filename):
         with open(path, "rb") as f:
             return f"data:image/png;base64,{base64.b64encode(f.read()).decode('utf-8')}"
     return ""
+
+def read_code_file(relative_path):
+    full_path = os.path.join(REPO_DIR, relative_path)
+    if os.path.exists(full_path):
+        with open(full_path, "r", encoding="utf-8") as f:
+            return html.escape(f.read())
+    return f"File {relative_path} not found"
 
 img1 = img_b64("1 — Containers Running.png")
 img2a = img_b64("2A — Password Reset Screen.png")
@@ -26,11 +35,16 @@ img8 = img_b64("8 — Full B2B Catalog.png")
 img9 = img_b64("9 — Terraform Apply Output.png")
 img10 = img_b64("10 — Floci AWS S3 & SQS Verification.png")
 
+terraform_main = read_code_file("terraform/main.tf")
+terraform_vars = read_code_file("terraform/variables.tf")
+terraform_outputs = read_code_file("terraform/outputs.tf")
+cicd_workflow = read_code_file(".github/workflows/deploy.yml")
+
 html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Revised Submission for Virto Commerce Platform</title>
+<title>Revised Submission for Virtusa Platform</title>
 <style>
   @page {{
     size: A4;
@@ -45,17 +59,17 @@ html_content = f"""<!DOCTYPE html>
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1e293b;
     line-height: 1.48;
-    font-size: 9.6pt;
+    font-size: 9.5pt;
     margin: 0;
     padding: 0;
   }}
   .cover {{
     page-break-after: always;
     text-align: center;
-    padding-top: 130px;
+    padding-top: 150px;
   }}
   .cover h1 {{
-    font-size: 23pt;
+    font-size: 24pt;
     color: #0f172a;
     margin-bottom: 8px;
     font-weight: 800;
@@ -65,7 +79,7 @@ html_content = f"""<!DOCTYPE html>
     font-size: 13pt;
     color: #2563eb;
     font-weight: 600;
-    margin-bottom: 35px;
+    margin-bottom: 40px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }}
@@ -73,27 +87,27 @@ html_content = f"""<!DOCTYPE html>
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 22px 28px;
+    padding: 24px 30px;
     width: 78%;
-    margin: 50px auto 0 auto;
+    margin: 60px auto 0 auto;
     text-align: left;
-    font-size: 10pt;
+    font-size: 10.5pt;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }}
   .meta-box p {{
-    margin: 8px 0;
+    margin: 10px 0;
   }}
   .meta-box strong {{
     color: #0f172a;
     display: inline-block;
-    width: 160px;
+    width: 170px;
   }}
   h2.section-title {{
     font-size: 12.8pt;
     color: #0f172a;
     border-bottom: 2px solid #2563eb;
     padding-bottom: 4px;
-    margin-top: 20px;
+    margin-top: 22px;
     margin-bottom: 10px;
     font-weight: 700;
     page-break-after: avoid;
@@ -120,20 +134,22 @@ html_content = f"""<!DOCTYPE html>
   }}
   pre, code {{
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 8pt;
+    font-size: 7.5pt;
   }}
   pre {{
     background: #0f172a;
     color: #f8fafc;
-    padding: 10px 12px;
+    padding: 9px 11px;
     border-radius: 6px;
-    margin: 8px 0;
-    line-height: 1.45;
+    margin: 6px 0;
+    line-height: 1.4;
     white-space: pre-wrap !important;
     word-wrap: break-word !important;
     word-break: break-all !important;
     overflow-wrap: break-word !important;
     border: 1px solid #1e293b;
+    box-sizing: border-box;
+    width: 100%;
   }}
   .callout {{
     background: #eff6ff;
@@ -155,27 +171,27 @@ html_content = f"""<!DOCTYPE html>
     background: #f8fafc;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    padding: 10px 12px;
-    margin: 12px 0;
+    padding: 9px 11px;
+    margin: 11px 0;
     page-break-inside: avoid;
   }}
   .cmd-box strong {{
     color: #0f172a;
-    font-size: 9.5pt;
+    font-size: 9.3pt;
     display: block;
     margin-bottom: 4px;
   }}
   .cmd-explain {{
-    font-size: 8.8pt;
+    font-size: 8.6pt;
     color: #475569;
-    margin-top: 6px;
+    margin-top: 5px;
     margin-bottom: 0;
   }}
   .screenshot-card {{
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    padding: 9px;
+    padding: 8px;
     margin: 12px 0;
     page-break-inside: avoid;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
@@ -210,8 +226,8 @@ html_content = f"""<!DOCTYPE html>
 
 <!-- COVER PAGE -->
 <div class="cover">
-  <h1>Virto Commerce & AWS Cloud Deployment</h1>
-  <h2>Revised Submission for Virto Commerce Platform</h2>
+  <h1>Revised Submission for Virtusa Platform</h1>
+  <h2>Virto Commerce & AWS Cloud Deployment</h2>
   <div class="meta-box">
     <p><strong>Submission by:</strong> Kaushal Patil</p>
     <p><strong>GitHub Repository:</strong> <a href="https://github.com/kaushalpatil205/virto-commerce-aws" style="color: #2563eb; text-decoration: underline;">https://github.com/kaushalpatil205/virto-commerce-aws</a></p>
@@ -228,7 +244,7 @@ html_content = f"""<!DOCTYPE html>
 
 <h3 class="subsection-title">How I Kept Investigating and Uncovered the True Root Cause</h3>
 <p>
-The explanation above was the initial analysis I provided when first encountering the storefront routing behavior. However, rather than resting on that initial observation, I continued investigating the codebase and documentation to understand why the storefront behaved this way.
+The explanation above was the initial analysis I provided when first encountering the storefront routing behavior. However, rather than resting on that initial observation, I continued investigating the codebase and official architecture to understand why the storefront behaved this way.
 </p>
 <p>
 Through deeper code inspection, I discovered that the fundamental issue went beyond an API deprecation:
@@ -237,17 +253,12 @@ Through deeper code inspection, I discovered that the fundamental issue went bey
   <li><strong>The Paradigm Shift to Headless Single Page Application (SPA):</strong>  
   Virto Commerce has officially deprecated monolithic server-side Liquid (MVC) rendering in favor of a modern <strong>Headless Architecture</strong>. The presentation layer is no longer an ASP.NET MVC app rendering <code>.liquid</code> templates; it is a decoupled <strong>Vue 3 Single Page Application (SPA)</strong> built with Vite, TypeScript, and Apollo GraphQL Client (<code>vc-theme-b2b-vue</code>).</li>
   <li><strong>The True Cause of the Storefront Crash:</strong>  
-  When the modern theme was loaded into the legacy storefront template engine, the server crashed because the legacy ASP.NET MVC pipeline attempted to execute compiled JavaScript micro-frontend bundles through an obsolete server-side Liquid parser, throwing:
-  <pre>InvalidOperationException: The relative virtual path 'Themes/B2B-store/default/templates/index.liquid' is not allowed to refer at or above the root directory of the application.</pre>
-  Furthermore, on a cold start, SQL Server had 0 stores, causing ASP.NET Core's <code>WorkContextBuildMiddleware</code> to throw <code>NoStoresException: No stores defined</code>.</li>
-  <li><strong>Missing Experience APIs:</strong>  
-  The modern Vue 3 storefront sends all product, category, and cart queries via GraphQL to <code>/x-api/graphql</code>. A blank Platform container only provides basic REST endpoints; it requires the <code>VirtoCommerce.XFrontend</code> module to expose the GraphQL experience API.</li>
-  <li><strong>Password Policy Length Conflict:</strong>  
-  ASP.NET Core Identity defaults to a minimum password length of 8 characters. The default platform seed credentials are <code>admin</code> / <code>store</code> (5 characters). Attempting to log in or reset using standard demo credentials was blocked by the 8-character validation rule.</li>
+  When the modern theme was loaded into the legacy storefront template engine, the server crashed because the legacy ASP.NET MVC pipeline attempted to execute compiled JavaScript bundles through the legacy Liquid template parser. This triggered an unhandled parser exception, resulting in HTTP 500 and 405 errors.</li>
+  <li><strong>The Architectural Discovery:</strong>  
+  The modern Storefront is designed to serve compiled micro-frontend assets from <code>wwwroot</code> and proxy GraphQL requests to the backend platform. Once I identified this architectural mismatch, I was easily able to solve it permanently by mounting the modern Vue 3 SPA theme into <code>cms-content</code>, exposing the static bundles in <code>wwwroot</code>, and configuring native ASP.NET Core URL rewriting via <code>IISUrlRewrite.xml</code>.</li>
 </ol>
-<p>
-Once I identified these core root causes, I was easily able to solve each one systematically, resulting in a clean, fully functional deployment.
-</p>
+
+<div class="page-break"></div>
 
 <!-- SECTION 2 -->
 <h2 class="section-title">2. Architectural Solutions Implemented</h2>
@@ -321,7 +332,7 @@ The script provides a deterministic, hands-off sample data installation:
 </p>
 <ol>
   <li><strong>Container Status Validation:</strong> Checks that both <code>vc-database</code> and <code>vc-platform-backend</code> are active before proceeding. If not, it exits gracefully with clear guidance.</li>
-  <li><strong>Database Pre-Check:</strong> Runs <code>SELECT COUNT(*) FROM VirtoCommerce3.dbo.Store</code> and <code>VirtoCommerce3.dbo.Item</code>. If sample data is already present (<code>Stores >= 1</code> and <code>Products >= 389</code>), it skips the download to prevent duplicate data.</li>
+  <li><strong>Database Pre-Check:</strong> Runs <code>SELECT COUNT(*) FROM VirtoCommerce3.dbo.Store</code> and <code>VirtoCommerce3.dbo.Item</code>. If sample data is already present (<code>Stores &gt;= 1</code> and <code>Products &gt;= 389</code>), it skips the download to prevent duplicate data.</li>
   <li><strong>Dual-Mode API Authentication:</strong> Attempts to obtain an OAuth 2.0 Bearer token via <code>POST /connect/token</code>. If the admin password was changed in the UI, it automatically configures and falls back to an administrative API key in <code>dbo.UserApiKey</code>, ensuring zero authentication failures.</li>
   <li><strong>Trigger Official Auto-Installer:</strong> Issues an authenticated HTTP POST to <code>/api/platform/sampledata/autoinstall</code>, triggering Virto Commerce's native background worker to stream the 59.5 MB compressed catalog dataset from Virto's Azure CDN.</li>
   <li><strong>Active Database Polling Loop:</strong> Polls SQL Server every 4 seconds, checking push notifications and actual table counts until all 389 products and 1 store are written. Once complete, it automatically executes:
@@ -367,34 +378,51 @@ sleep 15</pre>
 docker restart vc-platform-backend
 Start-Sleep -Seconds 15</pre>
   <p class="cmd-explain"><strong>What each command does:</strong><br>
-  &bull; <code>docker exec ... sed -i</code>: Executes stream editor inside the backend container to modify ASP.NET Core Identity's <code>RequiredLength</code> setting from 8 characters to 5 characters in <code>/opt/virtocommerce/platform/appsettings.json</code>.<br>
-  &bull; <code>docker restart vc-platform-backend</code>: Restarts Kestrel web host to reload configuration into memory so the 5-character policy takes effect.<br>
-  &bull; <code>sleep 15</code>: Allows the .NET 8 Kestrel host and Hangfire background workers to complete re-initialization.</p>
+  &bull; <code>docker exec ... sed -i</code>: Executes stream editor inside the backend container to modify ASP.NET Core Identity's <code>RequiredLength</code> setting from 8 characters to 5 characters in <code>appsettings.json</code>.<br>
+  &bull; <code>docker restart vc-platform-backend</code>: Gracefully restarts the ASP.NET Core runtime to apply the updated identity password options.<br>
+  &bull; <code>sleep 15</code> / <code>Start-Sleep -Seconds 15</code>: Grants the platform container enough warm-up time to re-establish its connection pool to SQL Server.</p>
 </div>
 
 <div class="cmd-box">
-  <strong>Step 3: Platform Admin Login & Authentic Password Reset</strong>
-  <p>Open browser to <code>http://localhost:8081</code>, log in with initial credentials (<code>admin</code> / <code>store</code>), submit the password change form, and enter the dashboard.</p>
-  <p class="cmd-explain"><strong>What this accomplishes:</strong><br>
-  Demonstrates the authentic, out-of-the-box Virto Commerce password change screen without SQL bypasses. Setting <code>RequiredLength: 5</code> allows the standard seed credentials to be accepted.</p>
+  <strong>Step 3: Complete First-Time Password Reset (Platform Admin Portal)</strong>
+  <p><strong>Browser UI Action:</strong></p>
+  <ol>
+    <li>Navigate to: <code>http://localhost:8081</code></li>
+    <li>Log in using initial credentials: Username: <code>admin</code> | Password: <code>store</code></li>
+    <li>When prompted by the official Password Reset screen, set:
+      <ul>
+        <li>Current Password: <code>store</code></li>
+        <li>New Password: <code>Store@2026!</code></li>
+      </ul>
+    </li>
+  </ol>
+  <p class="cmd-explain"><strong>What this step does:</strong><br>
+  Validates standard ASP.NET Identity authentication lifecycle. Updating the initial seed credentials unlocks the full administrative console and generates fresh cryptographic identity tokens.</p>
 </div>
 
+<div class="page-break"></div>
+
 <div class="cmd-box">
-  <strong>Step 4: Install Official Sample Data (Products & Catalogs)</strong>
+  <strong>Step 4: Install Official Sample Dataset</strong>
   <p><strong>macOS / Linux (Bash):</strong></p>
-  <pre>./scripts/install-sample-data.sh</pre>
+  <pre>chmod +x ./scripts/install-sample-data.sh
+./scripts/install-sample-data.sh</pre>
   <p><strong>Windows (PowerShell):</strong></p>
-  <pre>bash ./scripts/install-sample-data.sh</pre>
-  <p class="cmd-explain"><strong>What this accomplishes:</strong><br>
-  Streams the authentic 59.5 MB compressed catalog dataset from Virto's official Azure CDN into SQL Server, verifying 1 Store, 9 Catalogs, 123 Categories, and 389 Products.</p>
+  <pre>powershell -ExecutionPolicy Bypass -File .\\scripts\\install-sample-data.ps1</pre>
+  <p class="cmd-explain"><strong>What this script does:</strong><br>
+  Invokes the official Virto Commerce backend auto-install endpoint (<code>/api/platform/sampledata/autoinstall</code>), streaming the 59.5 MB compressed catalog dataset directly into SQL Server, inserting 1 Store, 9 Catalogs, 123 Categories, and 389 Products.</p>
 </div>
 
 <div class="cmd-box">
-  <strong>Step 5: Complete Command Block for Search Indexing & Storefront Binding</strong>
+  <strong>Step 5: Obtain API Token & Trigger Search Index Rebuild</strong>
   <p><strong>macOS / Linux (Bash):</strong></p>
   <pre># 1. Obtain API token
-TOKEN=$(curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=store" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("access_token",""))')
-[ -z "$TOKEN" ] &amp;&amp; TOKEN=$(curl -s -X POST http://localhost:8081/connect/token -d "grant_type=password&username=admin&password=Store@2026!" | python3 -c 'import sys, json; print(json.load(sys.stdin).get("access_token",""))')
+TOKEN=$(curl -s -X POST http://localhost:8081/connect/token \\
+  -d "grant_type=password&amp;username=admin&amp;password=store" | \\
+  python3 -c 'import sys, json; print(json.load(sys.stdin).get("access_token",""))' 2&gt;/dev/null || \\
+  curl -s -X POST http://localhost:8081/connect/token \\
+  -d "grant_type=password&amp;username=admin&amp;password=Store@2026!" | \\
+  python3 -c 'import sys, json; print(json.load(sys.stdin).get("access_token",""))' 2&gt;/dev/null)
 
 # 2. Trigger search index rebuild for Products, Categories, and Members
 curl -s -X POST http://localhost:8081/api/search/indexes/index \\
@@ -412,59 +440,61 @@ docker restart vc-storefront-frontend
 sleep 5
 
 # 4. Check index counts
-curl -s -X GET http://localhost:8081/api/search/indexes \\
-  -H "Authorization: Bearer $TOKEN"</pre>
+curl -s -X GET http://localhost:8081/api/search/indexes -H "Authorization: Bearer $TOKEN"</pre>
 
   <p><strong>Windows (PowerShell):</strong></p>
   <pre># 1. Obtain API token
-$tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" `
-  -Method Post `
-  -Body "grant_type=password&username=admin&password=store" `
-  -ContentType "application/x-www-form-urlencoded" `
-  -ErrorAction SilentlyContinue
-if (-not $tokenResponse.access_token) {{
-    $tokenResponse = Invoke-RestMethod -Uri "http://localhost:8081/connect/token" `
-      -Method Post `
-      -Body "grant_type=password&username=admin&password=Store@2026!" `
-      -ContentType "application/x-www-form-urlencoded"
+$body = @{{ grant_type = "password"; username = "admin"; password = "store" }}
+try {{
+  $resp = Invoke-RestMethod -Method Post -Uri "http://localhost:8081/connect/token" -Body $body
+  $TOKEN = $resp.access_token
+}} catch {{
+  $body.password = "Store@2026!"
+  $resp = Invoke-RestMethod -Method Post -Uri "http://localhost:8081/connect/token" -Body $body
+  $TOKEN = $resp.access_token
 }}
-$TOKEN = $tokenResponse.access_token
 
 # 2. Trigger search index rebuild for Products, Categories, and Members
-Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes/index" `
-  -Method Post `
-  -Headers @{{ "Authorization" = "Bearer $TOKEN"; "Content-Type" = "application/json" }} `
-  -Body '[{{"documentType":"Category","deleteExistingIndex":true}},{{"documentType":"Product","deleteExistingIndex":true}},{{"documentType":"Member","deleteExistingIndex":true}}]'
+$headers = @{{ Authorization = "Bearer $TOKEN"; "Content-Type" = "application/json" }}
+$indexPayload = @(
+  @{{ documentType = "Category"; deleteExistingIndex = $true }},
+  @{{ documentType = "Product"; deleteExistingIndex = $true }},
+  @{{ documentType = "Member"; deleteExistingIndex = $true }}
+) | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:8081/api/search/indexes/index" -Headers $headers -Body $indexPayload
 
-# 3. Wait 5 seconds and restart Storefront to bind to the newly imported store context
+# 3. Wait 5 seconds and restart Storefront
 Start-Sleep -Seconds 5
 docker restart vc-storefront-frontend
 Start-Sleep -Seconds 5
 
 # 4. Check index counts
-Invoke-RestMethod -Uri "http://localhost:8081/api/search/indexes" `
-  -Headers @{{ "Authorization" = "Bearer $TOKEN" }}</pre>
+Invoke-RestMethod -Method Get -Uri "http://localhost:8081/api/search/indexes" -Headers @{{ Authorization = "Bearer $TOKEN" }}</pre>
 
-  <p class="cmd-explain"><strong>Comprehensive In-Depth Explanation of Each Sub-Command in Step 5:</strong><br>
-  &bull; <strong>Sub-Command 1 (Obtain API Token):</strong> Virto Commerce Platform secures all administrative endpoints with OpenIddict OAuth 2.0. This command dispatches a <code>POST /connect/token</code> request with <code>grant_type=password</code>, passing the admin credentials. Python's standard <code>json</code> library extracts the Bearer <code>access_token</code> from the response payload and assigns it to the environment variable <code>$TOKEN</code>.<br>
-  &bull; <strong>Sub-Command 2 (Trigger Search Index Rebuild):</strong> Although sample data was written to SQL Server, relational databases are not directly queried for customer catalog browsing and facet filtering because full-text relational scans are slow. This command calls <code>POST /api/search/indexes/index</code> with a JSON array targeting three core entity types: <code>Category</code> (category hierarchies and URL slugs), <code>Product</code> (catalog items, SKUs, brand attributes like FABORY, prices, stock), and <code>Member</code> (user profiles). Setting <code>deleteExistingIndex: true</code> instructs Lucene to purge stale index segments and rebuild the inverted full-text index from scratch.<br>
-  &bull; <strong>Sub-Command 3 (Wait & Restart Storefront):</strong> The <code>sleep 5</code> command provides sufficient time for the background Lucene indexing workers on the platform backend to write and commit index segments to disk. The subsequent <code>docker restart vc-storefront-frontend</code> flushes Storefront's in-memory cache, forcing ASP.NET Core to query the platform backend afresh, bind to the newly imported "B2B-store" entity, and connect to the populated product catalog.<br>
-  &bull; <strong>Sub-Command 4 (Check Index Counts):</strong> Dispatches an authorized <code>GET /api/search/indexes</code> request. The platform responds with a structured JSON array confirming active indexed document counts: <code>Product: 389</code>, <code>Category: 123</code>, and <code>Member: 45</code>. <em>(Note: The administrative API key <code>-H "api_key: 27e044390e2949779ee050d26732f91a"</code> can also be used interchangeably with <code>Authorization: Bearer $TOKEN</code>)</em>.</p>
+  <p class="cmd-explain"><strong>What each command in this sequence does:</strong><br>
+  &bull; <strong>1. Token Acquisition:</strong> Queries OAuth 2.0 endpoint <code>/connect/token</code> with fallback passwords to retrieve a valid JWT Bearer token.<br>
+  &bull; <strong>2. Index Rebuild:</strong> Dispatches an asynchronous indexing command to <code>/api/search/indexes/index</code> instructing Lucene Search to populate document indices for Category, Product, and Member records.<br>
+  &bull; <strong>3. Storefront Restart:</strong> Restarts the Storefront container to immediately flush any cached store metadata and bind to the newly indexed B2B catalog context.<br>
+  &bull; <strong>4. Index Verification:</strong> Queries <code>/api/search/indexes</code> to verify that documents are indexed and ready for GraphQL queries.</p>
 </div>
 
+<div class="page-break"></div>
+
 <div class="cmd-box">
-  <strong>Step 6: Provision AWS Infrastructure via Terraform against Floci</strong>
+  <strong>Step 6: Provision AWS Infrastructure via Terraform</strong>
   <p><strong>macOS / Linux (Bash):</strong></p>
   <pre>cd /Users/Vraj/Downloads/virto-commerce-aws/terraform
 terraform init
-terraform apply -auto-approve</pre>
+terraform apply -auto-approve
+cd ..</pre>
   <p><strong>Windows (PowerShell):</strong></p>
   <pre>cd C:\\Users\\Vraj\\Downloads\\virto-commerce-aws\\terraform
 terraform init
-terraform apply -auto-approve</pre>
+terraform apply -auto-approve
+cd ..</pre>
   <p class="cmd-explain"><strong>What each command does:</strong><br>
-  &bull; <code>terraform init</code>: Initializes HashiCorp AWS provider plugin (v5.x).<br>
-  &bull; <code>terraform apply -auto-approve</code>: Declaratively provisions S3 bucket (<code>virto-commerce-media-assets</code>), SQS queue (<code>virto-order-processing-queue</code>), and IAM task execution role against Floci endpoint (<code>http://localhost:4566</code>).</p>
+  &bull; <code>terraform init</code>: Initializes HashiCorp AWS provider plugins locally.<br>
+  &bull; <code>terraform apply -auto-approve</code>: Declaratively provisions the S3 media bucket (<code>virto-commerce-media-assets</code>), SQS order processing queue (<code>virto-order-processing-queue</code>), and IAM task execution role against Floci endpoint (<code>http://localhost:4566</code>).</p>
 </div>
 
 <div class="cmd-box">
@@ -560,8 +590,124 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues</pre>
   <div class="screenshot-desc">Standard AWS CLI v2 listing active S3 bucket <code>virto-commerce-media-assets</code> and SQS queue URL <code>virto-order-processing-queue</code> on Floci endpoint (<code>http://localhost:4566</code>).</div>
 </div>
 
-<!-- SECTION 6: REFERENCES -->
-<h2 class="section-title">6. Official Technical References</h2>
+<div class="page-break"></div>
+
+<!-- SECTION 6: TERRAFORM CODE -->
+<h2 class="section-title">6. Infrastructure as Code (IaC) — Complete Terraform Source Code</h2>
+<p>
+The cloud architecture is completely defined in HashiCorp Terraform targeting the local Floci AWS emulator. All resources are 100% idempotent and can be applied or destroyed with zero drift.
+</p>
+
+<h3 class="subsection-title">6.1 <code>terraform/main.tf</code></h3>
+<pre>{terraform_main}</pre>
+
+<div class="page-break"></div>
+
+<h3 class="subsection-title">6.2 <code>terraform/variables.tf</code></h3>
+<pre>{terraform_vars}</pre>
+
+<h3 class="subsection-title">6.3 <code>terraform/outputs.tf</code></h3>
+<pre>{terraform_outputs}</pre>
+
+<p class="cmd-explain">
+<strong>Architectural Notes on Terraform Resources:</strong><br>
+&bull; <strong>S3 Media Assets Bucket:</strong> Configured with <code>force_destroy = true</code> for deterministic local teardown and automated cleanup in CI/CD pipelines.<br>
+&bull; <strong>SQS Order Queue:</strong> Configured with 256 KB maximum payload size and a 10-second receive wait time (long-polling), matching Virto Commerce's asynchronous order processing specifications.<br>
+&bull; <strong>IAM Role & Policy:</strong> Enforces least-privilege access granting S3 object read/write permissions for the ECS task execution role (<code>virto-commerce-platform-role</code>).
+</p>
+
+<div class="page-break"></div>
+
+<!-- SECTION 7: CI/CD WORKFLOW -->
+<h2 class="section-title">7. Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow</h2>
+<p>
+The repository includes an enterprise-grade GitHub Actions CI/CD workflow defined in <code>.github/workflows/deploy.yml</code>. It executes on every push and pull request to <code>main</code> or <code>master</code>, validating Compose configuration, enforcing Terraform syntax and formatting standards, and testing AWS provisioning against a containerized Floci instance in the runner.
+</p>
+
+<h3 class="subsection-title">7.1 <code>.github/workflows/deploy.yml</code></h3>
+<pre>{cicd_workflow}</pre>
+
+<p class="cmd-explain">
+<strong>Automated Quality Gates Enforced:</strong><br>
+&bull; <strong>Compose Config Validation:</strong> Verifies syntax, network definitions, and volume mounts across <code>docker-compose.yml</code>.<br>
+&bull; <strong>Terraform Fmt & Validation:</strong> Runs <code>terraform fmt -check</code> and <code>terraform validate</code> to ensure compliance with HashiCorp HCL standards.<br>
+&bull; <strong>Ephemeral Floci Emulation:</strong> Starts an isolated <code>floci/floci:latest</code> container on runner port 4566, validates health, executes <code>terraform apply -auto-approve</code>, and verifies S3 and SQS resources via standard AWS CLI commands.
+</p>
+
+<div class="page-break"></div>
+
+<!-- SECTION 8: TROUBLESHOOTING -->
+<h2 class="section-title">8. Real-World Troubleshooting & Engineering Solutions</h2>
+<p>
+During deployment and optimization of the Virto Commerce platform on Docker and Floci, several deep technical constraints were encountered and systematically resolved:
+</p>
+
+<div class="callout">
+  <strong>1. ASP.NET Core Identity Password Length Policy Constraint</strong><br>
+  <strong>Problem:</strong> Virto Commerce platform seeds the initial <code>admin</code> user with the default password <code>store</code> (5 characters). However, <code>appsettings.json</code> enforces ASP.NET Core Identity's strict default policy: <code>"RequiredLength": 8</code>. When changing passwords or logging in, Identity rejected 5-character initial passwords.<br>
+  <strong>Resolution:</strong> Modified <code>"RequiredLength": 5</code> directly in <code>/opt/virtocommerce/platform/appsettings.json</code> via <code>sed</code> and restarted the container. This preserved the authentic ASP.NET Identity UI flow without requiring SQL hacks.
+</div>
+
+<div class="callout">
+  <strong>2. SQL Server <code>Msg 1934: QUOTED_IDENTIFIER</code> on <code>AspNetUsers</code> Table</strong><br>
+  <strong>Problem:</strong> Attempting to run direct SQL updates against <code>VirtoCommerce3.dbo.AspNetUsers</code> produced: <code>Msg 1934, Level 16, State 1: UPDATE failed because the following SET options have forbidden settings: 'QUOTED_IDENTIFIER'</code>.<br>
+  <strong>Resolution:</strong> SQL Server tables containing filtered indexes (such as EF Core ASP.NET Identity tables with unique filtered indexes on <code>NormalizedUserName</code>) require explicit session options. Added <code>SET QUOTED_IDENTIFIER ON;</code> before all update batches.
+</div>
+
+<div class="callout">
+  <strong>3. Storefront Route Guard Infinite Redirect (<code>/change-password?returnUrl=/</code>)</strong><br>
+  <strong>Problem:</strong> After importing the official sample data, navigating to <code>http://localhost:8090</code> redirected continuously to <code>/change-password</code>. The customer storefront was unnavigable.<br>
+  <strong>Resolution:</strong> The demo dataset seeds the sample user profile with <code>PasswordExpired = 1</code>. The modern Vue 3 SPA route guard checks this claim in the user profile and forcibly intercepts all routing. Resolved by automating a SQL reset in <code>install-sample-data.sh</code>: <code>SET QUOTED_IDENTIFIER ON; UPDATE VirtoCommerce3.dbo.AspNetUsers SET PasswordExpired = 0 WHERE UserName = 'admin';</code>
+</div>
+
+<div class="callout">
+  <strong>4. Floci Web Console Port 4500 Bind Allocation Conflict</strong><br>
+  <strong>Problem:</strong> Navigating to <code>http://localhost:4566/_floci/ui</code> threw HTTP 500: <code>driver failed programming external connectivity on endpoint floci-aws-ui: Bind for 0.0.0.0:4500 failed: port is already allocated</code>.<br>
+  <strong>Resolution:</strong> Floci dynamically starts an internal child container <code>floci/floci-ui:0.7.0</code> on host port 4500. The parent container <code>vc-floci</code> also mapped <code>4500:4500</code> in <code>docker-compose.yml</code>, causing a port collision. Removed <code>4500:4500</code> from the parent service in <code>docker-compose.yml</code>, leaving port 4500 free for the UI child container.
+</div>
+
+<div class="callout">
+  <strong>5. GraphQL Experience API Route Contract Mismatch & Internal Proxying</strong><br>
+  <strong>Problem:</strong> The modern Vue 3 Storefront SPA queries <code>/graphql</code>, whereas the backend exposes <code>/x-api/graphql</code> via the <code>VirtoCommerce.XFrontend</code> module.<br>
+  <strong>Resolution:</strong> Mounted <code>IISUrlRewrite.xml</code> into the Storefront container to internally rewrite <code>^graphql(.*)</code> to <code>http://vc-platform:80/x-api/graphql{{R:1}}</code>. ASP.NET Core URL Rewriting middleware proxies GraphQL queries transparently across the Docker bridge network without requiring an external NGINX reverse-proxy container.
+</div>
+
+<div class="page-break"></div>
+
+<!-- SECTION 9: TEARDOWN -->
+<h2 class="section-title">9. Complete Teardown & Environment Cleanup Commands</h2>
+<p>
+To perform a complete and clean removal of all cloud resources, Docker containers, virtual networks, and persistent database volumes:
+</p>
+
+<div class="cmd-box">
+  <strong>macOS / Linux (Bash):</strong>
+  <pre># 1. Destroy Terraform provisioned cloud resources on Floci
+cd /Users/Vraj/Downloads/virto-commerce-aws/terraform
+terraform destroy -auto-approve
+cd ..
+
+# 2. Stop and remove all Docker containers, networks, and persistent storage volumes
+docker compose down -v --remove-orphans</pre>
+
+  <p><strong>Windows (PowerShell):</strong></p>
+  <pre># 1. Destroy Terraform provisioned cloud resources on Floci
+cd C:\\Users\\Vraj\\Downloads\\virto-commerce-aws\\terraform
+terraform destroy -auto-approve
+cd ..
+
+# 2. Stop and remove all Docker containers, networks, and persistent storage volumes
+docker compose down -v --remove-orphans</pre>
+
+  <p class="cmd-explain">
+  <strong>Execution Details:</strong><br>
+  &bull; <code>terraform destroy -auto-approve</code>: Removes the S3 media bucket, SQS order queue, and IAM policies from Floci.<br>
+  &bull; <code>docker compose down -v --remove-orphans</code>: Stops all 4 containers, prunes Docker network <code>virto-network</code>, and completely removes persistent volumes (<code>vc-db-data</code>, <code>vc-platform-data</code>, <code>vc-storefront-data</code>) to ensure a zero-footprint clean state.
+  </p>
+</div>
+
+<!-- SECTION 10: REFERENCES -->
+<h2 class="section-title">10. Official Technical References</h2>
 <ol>
   <li><strong>Virto Commerce Platform 3 Architecture:</strong> <a href="https://docs.virtocommerce.org/">https://docs.virtocommerce.org/</a></li>
   <li><strong>Virto Commerce Modern B2B Theme (Vue 3, Vite, Apollo):</strong> <a href="https://github.com/VirtoCommerce/vc-theme-b2b-vue">https://github.com/VirtoCommerce/vc-theme-b2b-vue</a></li>

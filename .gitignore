@@ -11,6 +11,7 @@
 .DS_Store
 Thumbs.db
 *.log
+report.html
 
 # Media & Product Catalog Assets
 assets/
