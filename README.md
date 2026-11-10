@@ -1,23 +1,23 @@
-# Revised Submission for Virtusa Platform
-
-## Virto Commerce & AWS Cloud Deployment
+# Virto Commerce Platform & Storefront Deployment with AWS Cloud Emulation (Floci)
 
 * **Submission by:** Kaushal Patil
 * **GitHub Repository:** [https://github.com/kaushalpatil205/virto-commerce-aws](https://github.com/kaushalpatil205/virto-commerce-aws)
 * **Technical Submission PDF Report:** [`Virto_Commerce_AWS_Technical_Submission_Report.pdf`](Virto_Commerce_AWS_Technical_Submission_Report.pdf)
+* **Comprehensive Defense Document:** [`docs/submission.md`](docs/submission.md)
 
 ---
 
 ## Table of Contents
-1. [Progression Narrative: Initial Review Stance vs. Deeper Architectural Discovery](#1-progression-narrative-initial-review-stance-vs-deeper-architectural-discovery)
-2. [Architecture Overview & System Topology](#2-architecture-overview--system-topology)
-3. [Assignment Tasks & Verification Matrix (Tasks 1 to 8)](#3-assignment-tasks--verification-matrix-tasks-1-to-8)
-4. [Detailed Analysis: Modules, Themes, and Scripts](#4-detailed-analysis-modules-themes-and-scripts)
-   - [4.1 Why I Pre-Installed Modules in `./modules`](#41-why-i-pre-installed-modules-in-modules)
-   - [4.2 Why and How Themes are Mounted in `./cms-content`](#42-why-and-how-themes-are-mounted-in-cms-content)
-   - [4.3 The Critical Role of `IISUrlRewrite.xml`](#43-the-critical-role-of-iisurlrewritexml)
-   - [4.4 In-Depth Breakdown of `scripts/install-sample-data.sh`](#44-in-depth-breakdown-of-scriptsinstall-sample-datash)
-5. [Step-by-Step Multi-Platform Execution Runbook (macOS/Linux & Windows)](#5-step-by-step-multi-platform-execution-runbook-macoslinux--windows)
+1. [Architecture Overview & System Diagrams](#1-architecture-overview--system-diagrams)
+   - [1.1 Local Emulation Architecture (Docker + Floci)](#11-local-emulation-architecture-docker--floci)
+   - [1.2 Proposed Real AWS Production Architecture](#12-proposed-real-aws-production-architecture)
+   - [1.3 Architecture Differences: Local Emulation vs. Production AWS](#13-architecture-differences-local-emulation-vs-production-aws)
+2. [Detailed Analysis: Modules, Themes, and Scripts](#2-detailed-analysis-modules-themes-and-scripts)
+   - [2.1 Why Modules are Pre-Installed in `./modules`](#21-why-modules-are-pre-installed-in-modules)
+   - [2.2 Why and How Themes are Mounted in `./cms-content`](#22-why-and-how-themes-are-mounted-in-cms-content)
+   - [2.3 The Critical Role of `IISUrlRewrite.xml`](#23-the-critical-role-of-iisurlrewritexml)
+   - [2.4 In-Depth Breakdown of `scripts/install-sample-data.sh`](#24-in-depth-breakdown-of-scriptsinstall-sample-datash)
+3. [Step-by-Step Multi-Platform Execution Runbook (macOS/Linux & Windows)](#3-step-by-step-multi-platform-execution-runbook-macoslinux--windows)
    - [Step 1: Start All Docker Services](#step-1-start-all-docker-services)
    - [Step 2: Configure Password Policy Length](#step-2-configure-password-policy-length)
    - [Step 3: Complete First-Time Password Reset](#step-3-complete-first-time-password-reset)
@@ -25,37 +25,22 @@
    - [Step 5: Obtain API Token & Trigger Search Index Rebuild](#step-5-obtain-api-token--trigger-search-index-rebuild)
    - [Step 6: Provision AWS Infrastructure via Terraform](#step-6-provision-aws-infrastructure-via-terraform)
    - [Step 7: Verify AWS Resources on Floci via AWS CLI](#step-7-verify-aws-resources-on-floci-via-aws-cli)
-6. [Visual Verification: Complete Deployment Proof (All 11 Milestones)](#6-visual-verification-complete-deployment-proof-all-11-milestones)
-7. [Infrastructure as Code (IaC) — Full Terraform Source Code](#7-infrastructure-as-code-iac--full-terraform-source-code)
-8. [Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow](#8-continuous-integration--deployment-cicd--github-actions-workflow)
-9. [Resilience, Data Persistence & Fault Tolerance Test (Task 6)](#9-resilience-data-persistence--fault-tolerance-test-task-6)
-10. [Real-World Troubleshooting & Engineering Solutions](#10-real-world-troubleshooting--engineering-solutions)
-11. [Complete Teardown & Environment Cleanup Commands](#11-complete-teardown--environment-cleanup-commands)
-12. [Official Technical References](#12-official-technical-references)
+4. [Visual Verification: Complete Deployment Proof (All 11 Milestones)](#4-visual-verification-complete-deployment-proof-all-11-milestones)
+5. [Infrastructure as Code (IaC) — Full Terraform Source Code](#5-infrastructure-as-code-iac--full-terraform-source-code)
+6. [Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow](#6-continuous-integration--deployment-cicd--github-actions-workflow)
+7. [Resilience, Data Persistence & Fault Tolerance Test](#7-resilience-data-persistence--fault-tolerance-test)
+8. [Real-World Troubleshooting & Engineering Solutions](#8-real-world-troubleshooting--engineering-solutions)
+9. [Complete Teardown & Environment Cleanup Commands](#9-complete-teardown--environment-cleanup-commands)
+10. [Official Technical References](#10-official-technical-references)
 
 ---
 
-## 1. Progression Narrative: Initial Review Stance vs. Deeper Architectural Discovery
+## 1. Architecture Overview & System Diagrams
 
-> **Earlier Explanation Given in Initial Review:**  
-> *"As committed, the setup utilizes the exact baseline configuration and images specified in the Git repository, beginning with the October 29th deployment, cleanly stopping the environment via docker compose down, and transitioning to the latest platform build. In the demonstration, I showcase how the previous module compatibility constraint—where marketplace modules required a higher platform version—was systematically resolved by provisioning the latest compatible platform along with the requisite AdminShell, BackgroundJobs, and FileSystemAssets modules. Regarding the customer storefront (:8090), the video clarifies that the 405 MethodNotAllowed status is due to an upstream API deprecation (GET /api/stores replaced by POST /api/stores/search), confirming that the UI will only render once external Liquid theme templates are mounted to cms-content/Themes/ alongside an updated API contract."*
+Virto Commerce is an enterprise-grade, modular, headless .NET e-commerce platform. It decouples the core commerce business logic and backend engines (Platform) from the customer-facing shopping experience (Storefront).
 
-### How I Kept Investigating and Uncovered the True Root Cause
-The statement above reflects the initial reasoning I provided during the preliminary review when observing the storefront HTTP 405 and 500 status codes. However, rather than stopping at that observation, I continued investigating the Virto Commerce platform source code, theme architectures, and official documentation.
-
-Through exhaustive code examination, I identified that the true problem went far deeper than an API deprecation:
-1. **The Paradigm Shift to Headless Single Page Application (SPA):**  
-   Virto Commerce has officially transitioned away from legacy server-side Liquid (MVC) rendering. The customer storefront presentation layer is now an independent, decoupled **Vue 3 Single Page Application (SPA)** built with Vite, TypeScript, and Apollo GraphQL Client (`vc-theme-b2b-vue`).
-2. **The True Cause of the Storefront Crash:**  
-   When the modern theme was loaded into the legacy storefront template engine, the ASP.NET MVC pipeline attempted to execute compiled JavaScript bundles through the legacy Liquid template parser. This triggered an unhandled parser exception, resulting in HTTP 500 and 405 errors.
-3. **The Architectural Discovery & Permanent Fix:**  
-   The modern Storefront is designed to serve compiled micro-frontend assets from `wwwroot` and proxy GraphQL requests to the backend platform. Once I identified this architectural mismatch, I was easily able to solve it permanently by mounting the modern Vue 3 SPA theme into `cms-content`, exposing the static bundles in `wwwroot`, and configuring native ASP.NET Core URL rewriting via `IISUrlRewrite.xml`.
-
----
-
-## 2. Architecture Overview & System Topology
-
-The deployment establishes a clean, modern **4-container native architecture** on Docker bridge network `virto-network`:
+### 1.1 Local Emulation Architecture (Docker + Floci)
+In the local development environment, all components execute within an isolated Docker bridge network (`virto-network`). Floci emulates AWS cloud primitives (S3 for media assets, SQS for asynchronous event handling, and IAM for access control) with zero cloud fees.
 
 ```mermaid
 graph TD
@@ -63,43 +48,105 @@ graph TD
     
     subgraph Host["Containerized Docker Infrastructure (virto-network)"]
         Storefront["vc-storefront-frontend (Port 8090)<br/>- Official Virto Commerce Vue 3 B2B SPA<br/>- ASP.NET Core Static Web Host<br/>- IISUrlRewrite.xml Proxy Engine"]
-        Platform["vc-platform-backend (Port 8081)<br/>- ASP.NET Core 8 Modular Engine<br/>- VirtoCommerce.XFrontend (GraphQL API)<br/>- Lucene Search & Background Workers"]
-        SQL["vc-database (Port 1433)<br/>- Microsoft SQL Server 2022 Express<br/>- Relational Storage (VirtoCommerce3)"]
+        Platform["vc-platform-backend (Port 8081)<br/>- ASP.NET Core 8 Modular Engine<br/>- VirtoCommerce.XFrontend GraphQL API<br/>- Lucene Search & Background Workers"]
+        SQL["vc-database (Port 1433)<br/>- Microsoft SQL Server 2022 Express<br/>- Relational Storage VirtoCommerce3"]
         Floci["vc-floci (Port 4566 & 4500)<br/>- Floci AWS Local Cloud Emulator<br/>- S3 Bucket: virto-commerce-media-assets<br/>- SQS Queue: virto-order-processing-queue"]
         
         Client -->|Browse Store: Port 8090| Storefront
         Client -->|Platform Admin Portal: Port 8081| Platform
         Client -->|Floci Web Console: Port 4500 / 4566| Floci
         
-        Storefront -->|Internal GraphQL Proxy (^graphql -> /x-api/graphql)| Platform
-        Platform -->|Relational Queries (Port 1433)| SQL
-        Platform -->|Catalog Media S3 & Order Events SQS (Port 4566)| Floci
+        Storefront -->|Internal GraphQL Proxy| Platform
+        Platform -->|Relational SQL Queries: Port 1433| SQL
+        Platform -->|S3 Media & SQS Events: Port 4566| Floci
+    end
+    
+    subgraph Storage["Persistent Docker Volumes"]
+        DBVol[("vc-db-data")]
+        PlatformVol[("vc-platform-data")]
+        StorefrontVol[("vc-storefront-data")]
+        
+        SQL --- DBVol
+        Platform --- PlatformVol
+        Storefront --- StorefrontVol
     end
 ```
 
 ---
 
-## 3. Assignment Tasks & Verification Matrix (Tasks 1 to 8)
+### 1.2 Proposed Real AWS Production Architecture
+In a live cloud deployment on Amazon Web Services (AWS), the containerized local topology transitions to high-availability, auto-scaling managed cloud services across multiple Availability Zones:
 
-| Task # | Task Description | Implementation & Satisfaction Proof | Status |
-| :--- | :--- | :--- | :--- |
-| **Task 1** | **System Architecture Design & Document** | Detailed architecture documented in [`docs/architecture.md`](docs/architecture.md) and [`docs/submission.md`](docs/submission.md). Covers high-level topology, component responsibilities, dependency mapping, port allocations, and emulator vs production AWS comparisons. | **100% Satisfied** |
-| **Task 2** | **Containerized Local Deployment (Docker Compose)** | Orchestrates all core services via [`docker-compose.yml`](docker-compose.yml) using official vendor images (`vc-database`, `vc-platform-backend`, `vc-storefront-frontend`, `vc-floci`) with automated healthchecks, environment variables, named persistent volumes (`vc-db-data`, `vc-platform-data`), and bridge networking (`virto-network`). | **100% Satisfied** |
-| **Task 3** | **Cloud Resource Emulation (Floci AWS)** | Configured `vc-floci` running `floci/floci:latest` on port `4566` with Docker engine socket mounted. Emulates AWS S3 for media assets, AWS SQS for order queueing, and IAM task execution roles locally without cloud costs. | **100% Satisfied** |
-| **Task 4** | **Infrastructure as Code (Terraform)** | Wrote declarative Terraform scripts in [`terraform/main.tf`](terraform/main.tf), `variables.tf`, and `outputs.tf` targeting Floci (`http://localhost:4566`). Provisions S3 bucket (`virto-commerce-media-assets`), SQS queue (`virto-order-processing-queue`), and IAM role (`virto-commerce-platform-role`) with 100% idempotency, verified via AWS CLI v2. | **100% Satisfied** |
-| **Task 5** | **Platform & Storefront Operational Validation** | Fully validated both applications: Platform Admin (`http://localhost:8081`) with authentic password reset and installed modules, and Customer Storefront (`http://localhost:8090`) serving the live modern Vue 3 SPA with 389 products, 123 categories, 9 catalogs, Bolts category (34 items), search, and cart. | **100% Satisfied** |
-| **Task 6** | **Resilience, Data Persistence & Fault Tolerance Test** | Conducted deliberate persistence tests via `docker compose restart vc-db` and deliberate outage tests via `docker compose stop vc-db ; docker compose start vc-db`. Confirmed SQL Server preserves all database tables and catalog records across restarts via Docker volume `vc-db-data`. | **100% Satisfied** |
-| **Task 7** | **CI/CD Pipeline & Automated Deployment Scripts** | Packaged automated deployment scripts for both Linux/macOS (`scripts/deploy.sh`, `scripts/cleanup.sh`, `scripts/install-sample-data.sh`) and Windows PowerShell (`scripts/deploy.ps1`, `scripts/cleanup.ps1`), backed by GitHub Actions workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). | **100% Satisfied** |
-| **Task 8** | **Technical Presentation & Documentation Report** | Formulated complete presentation guide in [`docs/presentation.md`](docs/presentation.md), submission document in [`docs/submission.md`](docs/submission.md), and compiled formal PDF submission report [`Virto_Commerce_AWS_Technical_Submission_Report.pdf`](Virto_Commerce_AWS_Technical_Submission_Report.pdf) with all 11 verified milestone screenshots. | **100% Satisfied** |
+```mermaid
+graph TD
+    User["End Users & Shoppers"]
+    Admin["Operations & Administrators"]
+    
+    subgraph AWS["AWS Cloud (Production Multi-AZ Architecture)"]
+        CF["Amazon CloudFront (CDN)"]
+        ALB["Application Load Balancer (ALB) + ACM SSL"]
+        
+        subgraph VPC["Virtual Private Cloud (VPC: 10.0.0.0/16)"]
+            subgraph PublicSubnets["Public Subnets (Multi-AZ)"]
+                NAT["NAT Gateways & Bastion"]
+            end
+            
+            subgraph PrivateAppSubnets["Private Application Subnets (Multi-AZ)"]
+                ECSSF["AWS ECS Fargate: Storefront Tasks (Vue 3 SPA)"]
+                ECSPF["AWS ECS Fargate: Platform Backend API Tasks"]
+            end
+            
+            subgraph PrivateDataSubnets["Private Isolated Data Subnets (Multi-AZ)"]
+                RDS[("Amazon RDS SQL Server (Multi-AZ)")]
+                Redis[("Amazon ElastiCache Redis Cluster")]
+            end
+        end
+        
+        S3[("Amazon S3: Media & Static Assets Bucket")]
+        SQS["Amazon SQS: Order Event Queue"]
+        CW["Amazon CloudWatch: Metrics & Alarms"]
+        SM["AWS Secrets Manager & IAM Roles"]
+        
+        User --> CF
+        CF --> S3
+        CF --> ALB
+        Admin --> ALB
+        
+        ALB --> ECSSF
+        ALB --> ECSPF
+        ECSSF --> ECSPF
+        
+        ECSPF --> RDS
+        ECSPF --> Redis
+        ECSPF --> S3
+        ECSPF --> SQS
+        ECSPF --> CW
+        ECSPF --> SM
+    end
+```
 
 ---
 
-## 4. Detailed Analysis: Modules, Themes, and Scripts
+### 1.3 Architecture Differences: Local Emulation vs. Production AWS
 
-### 4.1 Why I Pre-Installed Modules in `./modules`
+| Architectural Layer | Local Emulation (Docker & Floci) | Production Architecture (AWS Cloud) |
+| :--- | :--- | :--- |
+| **Compute Tier** | Single Docker Host running 4 containers via Docker Compose | AWS ECS Fargate tasks across Multi-AZ subnets with auto-scaling policies |
+| **Load Balancing** | Direct port bindings (`:8081`, `:8090`) on `localhost` | AWS Application Load Balancer (ALB) with SSL/TLS termination via ACM |
+| **Relational Database** | Containerized SQL Server Express on named volume `vc-db-data` | Amazon RDS for SQL Server (Multi-AZ) with automated daily backups |
+| **Asset Storage (S3)** | Local Floci emulator bucket (`http://localhost:4566`) | Amazon S3 with AWS CloudFront CDN distribution for global edge caching |
+| **Event Messaging** | Floci local SQS queue emulation | Amazon SQS Standard/FIFO Queue with Dead-Letter Queue (DLQ) redrive |
+| **Security & Secrets** | Static credentials (`test`/`test`) in `.env` | AWS Secrets Manager, SSM Parameter Store, and IAM Task Execution Roles |
+| **Search Indexing** | Local Lucene file system indices | Amazon OpenSearch Service cluster with high availability |
+
+---
+
+## 2. Detailed Analysis: Modules, Themes, and Scripts
+
+### 2.1 Why Modules are Pre-Installed in `./modules`
 Virto Commerce is a **modular monolith**. The base platform container image includes zero e-commerce logic, catalog tables, or store endpoints. All business domains are packaged as standalone module ZIPs.
 
-If the container downloads all 40+ modules on cold start:
+If the container downloads all 40+ modules dynamically on cold start:
 * It issues unauthenticated API requests to GitHub, hitting GitHub's strict rate limit (**60 requests/hour/IP**) and aborting container initialization.
 * It requires 15 to 25 minutes of continuous downloading, leading to timeouts on variable networks.
 * It forces multiple sequential container reboots as EF Core schema migrations are executed.
@@ -107,14 +154,14 @@ If the container downloads all 40+ modules on cold start:
 By pre-downloading and verifying the official modules in `./modules` and volume-mounting them to `/opt/virtocommerce/platform/modules`:
 * Startup is 100% deterministic and instantaneous.
 * The system boots completely offline without external network dependencies.
-* Critical modules like `VirtoCommerce.XFrontend` (v3.1009.0), `VirtoCommerce.WhiteLabeling`, and `VirtoCommerce.ImageTools` are immediately active.
+* Critical modules like `VirtoCommerce.XFrontend` (v3.1009.0 GraphQL Experience API), `VirtoCommerce.WhiteLabeling`, and `VirtoCommerce.ImageTools` are immediately active.
 
-### 4.2 Why and How Themes are Mounted in `./cms-content`
+### 2.2 Why and How Themes are Mounted in `./cms-content`
 The customer storefront is the official **Virto Commerce Modern B2B Theme** (`vc-theme-b2b-vue` v2.61.0).
 * **CMS Layout Directory (`/opt/virtocommerce/storefront/cms-content` & `/root/cms-content`):** The Storefront configuration specifies `rootPath=~/cms-content`. Because the container runs as `root`, `~` resolves to `/root/cms-content`. Mounting `./cms-content` provides layout metadata, store channel settings, and theme configurations.
 * **Static Micro-Frontend Bundles (`/opt/virtocommerce/storefront/wwwroot/`):** Mounted compiled Vite chunks (`remoteEntry-*.js`, `mf-manifest.json`, `assets/`, `static/`) into `wwwroot`. ASP.NET Core's static file middleware serves these directly to browsers with optimal caching.
 
-### 4.3 The Critical Role of `IISUrlRewrite.xml`
+### 2.3 The Critical Role of `IISUrlRewrite.xml`
 The modern Vue 3 SPA frontend queries GraphQL at `/graphql`, but Virto Commerce's `VirtoCommerce.XFrontend` module exposes its GraphQL schema at `/x-api/graphql`.
 
 Mounted `IISUrlRewrite.xml` directly into `/opt/virtocommerce/storefront/IISUrlRewrite.xml`:
@@ -130,9 +177,9 @@ Mounted `IISUrlRewrite.xml` directly into `/opt/virtocommerce/storefront/IISUrlR
 </rewrite>
 ```
 
-This configuration enables the official Storefront container to handle static bundles and proxy GraphQL queries directly across the Docker network without requiring an external NGINX reverse-proxy container.
+This configuration enables the official Storefront container to serve static bundles and proxy GraphQL queries directly across the Docker bridge network without requiring an external NGINX reverse-proxy container.
 
-### 4.4 In-Depth Breakdown of `scripts/install-sample-data.sh`
+### 2.4 In-Depth Breakdown of `scripts/install-sample-data.sh`
 The automated sample data installation script handles the entire data lifecycle:
 1. **Container Health Verification:** Probes both `vc-database` and `vc-platform-backend` before initiating any HTTP requests.
 2. **Database Idempotency Pre-Check:** Executes `SELECT COUNT(*) FROM VirtoCommerce3.dbo.Store` and `VirtoCommerce3.dbo.Item`. If sample data already exists (`Stores >= 1` and `Products >= 389`), it skips downloading to prevent schema corruption.
@@ -147,7 +194,7 @@ The automated sample data installation script handles the entire data lifecycle:
 
 ---
 
-## 5. Step-by-Step Multi-Platform Execution Runbook (macOS/Linux & Windows)
+## 3. Step-by-Step Multi-Platform Execution Runbook (macOS/Linux & Windows)
 
 ### Step 1: Start All Docker Services
 Launches all 4 containers in detached mode on Docker bridge network `virto-network`.
@@ -332,7 +379,7 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 ---
 
-## 6. Visual Verification: Complete Deployment Proof (All 11 Milestones)
+## 4. Visual Verification: Complete Deployment Proof (All 11 Milestones)
 
 ### Screenshot 1: Docker Containers Overview (`docker compose ps`)
 ![Containers Running](screenshots/01_containers_running.png)
@@ -400,9 +447,9 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 ---
 
-## 7. Infrastructure as Code (IaC) — Full Terraform Source Code
+## 5. Infrastructure as Code (IaC) — Full Terraform Source Code
 
-### 7.1 `terraform/main.tf`
+### 5.1 `terraform/main.tf`
 ```hcl
 terraform {
   required_version = ">= 1.5.0"
@@ -506,7 +553,7 @@ resource "aws_iam_role_policy_attachment" "platform_attach" {
 }
 ```
 
-### 7.2 `terraform/variables.tf`
+### 5.2 `terraform/variables.tf`
 ```hcl
 variable "aws_region" {
   type        = string
@@ -533,7 +580,7 @@ variable "order_queue_name" {
 }
 ```
 
-### 7.3 `terraform/outputs.tf`
+### 5.3 `terraform/outputs.tf`
 ```hcl
 output "s3_bucket_name" {
   value       = aws_s3_bucket.media_assets.bucket
@@ -558,7 +605,7 @@ output "iam_role_arn" {
 
 ---
 
-## 8. Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow
+## 6. Continuous Integration & Deployment (CI/CD) — GitHub Actions Workflow
 
 ```yaml
 name: Virto Commerce CI/CD Pipeline
@@ -617,7 +664,7 @@ jobs:
 
 ---
 
-## 9. Resilience, Data Persistence & Fault Tolerance Test (Task 6)
+## 7. Resilience, Data Persistence & Fault Tolerance Test
 
 1. **Persistence Across Container Restart:**
    ```bash
@@ -636,7 +683,7 @@ jobs:
 
 ---
 
-## 10. Real-World Troubleshooting & Engineering Solutions
+## 8. Real-World Troubleshooting & Engineering Solutions
 
 1. **ASP.NET Core Identity Password Length Policy Constraint:**  
    *Problem:* Virto Commerce platform seeds `admin` with default password `store` (5 characters). However, `appsettings.json` enforces ASP.NET Core Identity's default: `"RequiredLength": 8`. When logging in or changing passwords, Identity rejected 5-character initial passwords.  
@@ -656,7 +703,7 @@ jobs:
 
 ---
 
-## 11. Complete Teardown & Environment Cleanup Commands
+## 9. Complete Teardown & Environment Cleanup Commands
 
 ```bash
 # macOS / Linux (Bash)
@@ -682,7 +729,7 @@ docker compose down -v --remove-orphans
 
 ---
 
-## 12. Official Technical References
+## 10. Official Technical References
 
 1. **Virto Commerce Platform 3 Architecture:** [https://docs.virtocommerce.org/](https://docs.virtocommerce.org/)
 2. **Virto Commerce Modern B2B Theme (Vue 3, Vite, Apollo):** [https://github.com/VirtoCommerce/vc-theme-b2b-vue](https://github.com/VirtoCommerce/vc-theme-b2b-vue)

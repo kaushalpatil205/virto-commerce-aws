@@ -1,35 +1,105 @@
-# Virto Commerce Platform & Storefront Architecture Document (Task 1)
+# Virto Commerce Platform & Storefront Architecture Document
 
 ## 1. System Overview
 Virto Commerce is a modular, enterprise-grade, headless .NET e-commerce platform. It decouples the core commerce business logic and backend engines (Platform) from the customer-facing shopping experience (Storefront).
 
-The platform architecture operates as an asynchronous, API-first ecosystem capable of scaling independently across compute, persistence, and storage layers.
+The platform operates as an asynchronous, API-first ecosystem capable of scaling independently across compute, persistence, and storage layers.
+
+---
+
+## 2. Architecture Diagrams
+
+### 2.1 Local Emulation Architecture (Docker + Floci)
+In the local development environment, all components execute within an isolated Docker bridge network (`virto-network`). Floci emulates AWS cloud primitives (S3 for media assets, SQS for asynchronous event handling, and IAM for access control) with zero cloud fees.
 
 ```mermaid
 graph TD
     Client["Shopper Browser / Admin Engineer"]
     
     subgraph Host["Containerized Docker Infrastructure (virto-network)"]
-        Storefront["vc-storefront-frontend (Port 8090)<br/>- Vue 3 Single Page Application (SPA)<br/>- ASP.NET Core Static Web Host<br/>- IISUrlRewrite.xml Proxy Engine"]
-        Platform["vc-platform-backend (Port 8081)<br/>- ASP.NET Core 8 Modular Engine<br/>- VirtoCommerce.XFrontend (GraphQL API)<br/>- Lucene Search & Background Workers"]
-        SQL["vc-database (Port 1433)<br/>- Microsoft SQL Server 2022 Express<br/>- Relational Storage (VirtoCommerce3)"]
+        Storefront["vc-storefront-frontend (Port 8090)<br/>- Official Virto Commerce Vue 3 B2B SPA<br/>- ASP.NET Core Static Web Host<br/>- IISUrlRewrite.xml Proxy Engine"]
+        Platform["vc-platform-backend (Port 8081)<br/>- ASP.NET Core 8 Modular Engine<br/>- VirtoCommerce.XFrontend GraphQL API<br/>- Lucene Search & Background Workers"]
+        SQL["vc-database (Port 1433)<br/>- Microsoft SQL Server 2022 Express<br/>- Relational Storage VirtoCommerce3"]
         Floci["vc-floci (Port 4566 & 4500)<br/>- Floci AWS Local Cloud Emulator<br/>- S3 Bucket: virto-commerce-media-assets<br/>- SQS Queue: virto-order-processing-queue"]
         
         Client -->|Browse Store: Port 8090| Storefront
         Client -->|Platform Admin Portal: Port 8081| Platform
         Client -->|Floci Web Console: Port 4500 / 4566| Floci
         
-        Storefront -->|Internal GraphQL Proxy (^graphql -> /x-api/graphql)| Platform
-        Platform -->|Relational Queries (Port 1433)| SQL
-        Platform -->|Catalog Media S3 & Order Events SQS (Port 4566)| Floci
+        Storefront -->|Internal GraphQL Proxy| Platform
+        Platform -->|Relational SQL Queries: Port 1433| SQL
+        Platform -->|S3 Media & SQS Events: Port 4566| Floci
+    end
+    
+    subgraph Storage["Persistent Docker Volumes"]
+        DBVol[("vc-db-data")]
+        PlatformVol[("vc-platform-data")]
+        StorefrontVol[("vc-storefront-data")]
+        
+        SQL --- DBVol
+        Platform --- PlatformVol
+        Storefront --- StorefrontVol
     end
 ```
 
 ---
 
-## 2. Component Responsibilities & Service Contracts
+### 2.2 Proposed Real AWS Production Architecture
+In a live cloud deployment on Amazon Web Services (AWS), the containerized local topology transitions to high-availability, auto-scaling managed cloud services across multiple Availability Zones:
 
-### 2.1 Virto Commerce Platform Backend (`vc-platform-backend`)
+```mermaid
+graph TD
+    User["End Users & Shoppers"]
+    Admin["Operations & Administrators"]
+    
+    subgraph AWS["AWS Cloud (Production Multi-AZ Architecture)"]
+        CF["Amazon CloudFront (CDN)"]
+        ALB["Application Load Balancer (ALB) + ACM SSL"]
+        
+        subgraph VPC["Virtual Private Cloud (VPC: 10.0.0.0/16)"]
+            subgraph PublicSubnets["Public Subnets (Multi-AZ)"]
+                NAT["NAT Gateways & Bastion"]
+            end
+            
+            subgraph PrivateAppSubnets["Private Application Subnets (Multi-AZ)"]
+                ECSSF["AWS ECS Fargate: Storefront Tasks (Vue 3 SPA)"]
+                ECSPF["AWS ECS Fargate: Platform Backend API Tasks"]
+            end
+            
+            subgraph PrivateDataSubnets["Private Isolated Data Subnets (Multi-AZ)"]
+                RDS[("Amazon RDS SQL Server (Multi-AZ)")]
+                Redis[("Amazon ElastiCache Redis Cluster")]
+            end
+        end
+        
+        S3[("Amazon S3: Media & Static Assets Bucket")]
+        SQS["Amazon SQS: Order Event Queue"]
+        CW["Amazon CloudWatch: Metrics & Alarms"]
+        SM["AWS Secrets Manager & IAM Roles"]
+        
+        User --> CF
+        CF --> S3
+        CF --> ALB
+        Admin --> ALB
+        
+        ALB --> ECSSF
+        ALB --> ECSPF
+        ECSSF --> ECSPF
+        
+        ECSPF --> RDS
+        ECSPF --> Redis
+        ECSPF --> S3
+        ECSPF --> SQS
+        ECSPF --> CW
+        ECSPF --> SM
+    end
+```
+
+---
+
+## 3. Component Responsibilities & Service Contracts
+
+### 3.1 Virto Commerce Platform Backend (`vc-platform-backend`)
 - **Runtime:** ASP.NET Core 8 with Entity Framework Core and Hangfire/InMemory background workers.
 - **Port:** Host port `8081` mapped to container port `80`.
 - **API Endpoints:**
@@ -38,19 +108,19 @@ graph TD
   - OAuth 2.0 Identity Server endpoints (`/connect/token`) handling authentication and Bearer token issuance.
 - **Data Access:** Communicates with Microsoft SQL Server 2022 over TCP port `1433` using connection string `ConnectionStrings__VirtoCommerce`.
 
-### 2.2 Virto Commerce Frontend Storefront (`vc-storefront-frontend`)
+### 3.2 Virto Commerce Frontend Storefront (`vc-storefront-frontend`)
 - **Runtime:** Decoupled Vue 3 Single Page Application (SPA) built with Vite, TypeScript, and Apollo GraphQL Client (`vc-theme-b2b-vue` v2.61.0).
 - **Host Engine:** ASP.NET Core web server serving compiled static micro-frontend bundles (`remoteEntry-*.js`, `mf-manifest.json`, CSS, assets) from `/opt/virtocommerce/storefront/wwwroot`.
 - **Port:** Host port `8090` mapped to container port `80`.
 - **URL Rewriting Middleware:** Uses `IISUrlRewrite.xml` to intercept all browser Apollo client requests matching `^graphql(.*)` and forward them internally to `http://vc-platform:80/x-api/graphql{R:1}` over the Docker bridge network.
 
-### 2.3 Microsoft SQL Server 2022 Express (`vc-database`)
+### 3.3 Microsoft SQL Server 2022 Express (`vc-database`)
 - **Runtime:** `mcr.microsoft.com/mssql/server:2022-latest`
 - **Port:** Host port `1433` mapped to container port `1433`.
 - **Persistence:** Named persistent Docker volume `vc-db-data` mounted to `/var/opt/mssql`.
 - **Healthcheck:** Probes database engine readiness every 10 seconds via `/opt/mssql-tools18/bin/sqlcmd` before allowing the platform backend to connect.
 
-### 2.4 Floci AWS Local Cloud Emulator (`vc-floci`)
+### 3.4 Floci AWS Local Cloud Emulator (`vc-floci`)
 - **Runtime:** `floci/floci:latest`
 - **Ports:** Host port `4566` (AWS wire API gateway) and dynamic port `4500` (Floci Web Console UI via child container).
 - **Emulated Services:**
@@ -60,7 +130,7 @@ graph TD
 
 ---
 
-## 3. Communication Matrix & Network Topology
+## 4. Communication Matrix & Network Topology
 
 | Source Service | Target Service | Protocol / Port | Purpose |
 | :--- | :--- | :--- | :--- |
@@ -74,13 +144,13 @@ graph TD
 
 ---
 
-## 4. Emulator vs. Production AWS Differences
+## 5. Architecture Differences: Local Emulation vs. Production AWS
 
-| Architectural Layer | Local Emulation (Floci & Docker) | Production Architecture (AWS Cloud) |
+| Architectural Layer | Local Emulation (Docker & Floci) | Production Architecture (AWS Cloud) |
 | :--- | :--- | :--- |
 | **Compute Tier** | Single Docker Host running 4 containers via Docker Compose | AWS ECS Fargate tasks in private subnets across multiple Availability Zones |
 | **Load Balancing** | Direct port bindings (`:8081`, `:8090`) on `localhost` | AWS Application Load Balancer (ALB) with SSL/TLS termination and route path routing |
-| **Relational Database** | Containerized SQL Server Express on named volume `vc-db-data` | Amazon RDS for SQL Server (Multi-AZ) with automated automated daily snapshots |
+| **Relational Database** | Containerized SQL Server Express on named volume `vc-db-data` | Amazon RDS for SQL Server (Multi-AZ) with automated daily snapshots |
 | **Asset Storage (S3)** | Local Floci emulator bucket (`http://localhost:4566`) | Amazon S3 with AWS CloudFront CDN distribution for edge caching |
 | **Event Messaging** | Floci local SQS emulation queue | Amazon SQS Standard/FIFO Queue with Dead-Letter Queue (DLQ) redrive |
 | **Security & Secrets** | Static credentials (`test`/`test`) in `.env` | AWS Secrets Manager, Systems Manager Parameter Store, and IAM Task Roles |
