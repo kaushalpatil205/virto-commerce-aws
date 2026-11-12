@@ -55,9 +55,9 @@ graph TD
     
     subgraph Host["Containerized Docker Infrastructure (virto-network)"]
         Storefront["vc-storefront-frontend (Port 8090)<br/>- Official Virto Commerce Vue 3 B2B SPA<br/>- ASP.NET Core Static Web Host<br/>- IISUrlRewrite.xml Proxy Engine"]
-        Platform["vc-platform-backend (Port 8081)<br/>- ASP.NET Core 8 Modular Engine<br/>- VirtoCommerce.XFrontend GraphQL API<br/>- Lucene Search and Background Workers"]
+        Platform["vc-platform-backend (Port 8081)<br/>- ASP.NET Core 8 Modular Engine<br/>- VirtoCommerce.XFrontend GraphQL API<br/>- Lucene Search & Background Workers"]
         SQL["vc-database (Port 1433)<br/>- Microsoft SQL Server 2022 Express<br/>- Relational Storage VirtoCommerce3"]
-        Floci["vc-floci (Port 4566 and 4500)<br/>- Floci AWS Local Cloud Emulator<br/>- S3 Bucket: virto-commerce-media-assets<br/>- SQS Queue: virto-order-processing-queue"]
+        Floci["vc-floci (Port 4566 & 4500)<br/>- Floci AWS Local Cloud Emulator<br/>- S3 Bucket: virto-commerce-media-assets<br/>- SQS Queue: virto-order-processing-queue"]
         
         Client -->|Browse Store: Port 8090| Storefront
         Client -->|Platform Admin Portal: Port 8081| Platform
@@ -65,7 +65,7 @@ graph TD
         
         Storefront -->|Internal GraphQL Proxy| Platform
         Platform -->|Relational SQL Queries: Port 1433| SQL
-        Platform -->|S3 Media and SQS Events: Port 4566| Floci
+        Platform -->|S3 Media & SQS Events: Port 4566| Floci
     end
     
     subgraph Storage["Persistent Docker Volumes"]
